@@ -17,6 +17,7 @@ function render({
     const getHeight = ({ id }) => heightCache[id];
 
     // Render content in the $target node
+    $slice.innerHTML = '';
     content.forEach(({id, node}) => {
         $slice.appendChild(node);
         heightCache[id] = node.offsetHeight;
@@ -51,7 +52,6 @@ function render({
 
     // How much space do we need to replace at the bottom
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
-    const offsetAtBottom = sum(itemsAfterEnd.map(getHeight));
 
     // Move the scroll position
     $target.scrollTop = scrollTop;
