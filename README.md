@@ -2,6 +2,13 @@
 
 Yet another (still very experimental) way to render large virtual lists in the browser
 
+There's still lots more to do:
+- Remove all jQuery dependencies
+- More efficient way of calculating the heights
+- A better way to diff the DOM 
+- Make the internal content array immutable
+- Much more
+
 `* Suggestions for better names accepted`
 
 ### To run
@@ -27,7 +34,6 @@ new InfiniScroll({
 ```
 
 ### To use
-
 
 **Simple setup**
 ```js
