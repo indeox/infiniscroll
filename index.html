@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"> <!-- Enable Chrome Frame -->
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://ton.twimg.com/tweetdeck-web/web/css/font.5ef884f9f9.css">
+    <link rel="stylesheet" href="https://ton.twimg.com/tweetdeck-web/web/css/app-dark.cb7ed85902.css" title="dark">
+    <link rel="stylesheet" href="https://ton.twimg.com/tweetdeck-web/web/css/app-light.c10246f0ff.css" title="light">
+    <!-- Icons -->
+    <meta charset="UTF-8" />
+
+    <style>
+      body {
+        background: #1c6399
+      }
+
+      .column {
+        width: 270px;
+        max-height: 100%;
+        font-size: 11px;
+        float: left;
+      }
+
+      .column__body {
+        max-height: 100%;
+        overflow: auto;
+      }
+
+      .column__header button {
+        margin: 4px;
+        border: 1px solid #ccc !important;
+        background: transparent;
+        color: #ffffff;
+      }
+
+    </style>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.js"></script> 
+    <script src="sample_content.js" charset="utf-8"></script>
+    <script src="main.es6.js" charset="utf-8"></script>
+  </head>
+  <body>
+    
+    <div class="column is-narrow-columns"></div>
+
+<!--     <div class="column is-narrow-columns"></div>
+    <div class="column is-narrow-columns"></div>
+    <div class="column is-narrow-columns"></div>
+ -->
+    <script>
+      $('.column').each(function() {
+        var ITEMS_TO_RENDER = 300
+        var $el = $(this);
+        var content = [];
+        var insertContentEvery = 0;
+        var insertIndex = -1;
+
+        // Add header
+        var tpsSelect = 
+            '<select class="tps">'
+          + '  <option value="">None</option>'
+          + '  <option value="2000">Every 2 seconds</option>'
+          + '  <option value="1000">Every second</option>'
+          + '  <option value="500">2 every second</option>'
+          + '  <option value="250">4 every second</option>'
+          + '  <option value="200">5 every second</option>'
+          + '  <option value="125">8 every second</option>'
+          + '  <option value="100">10 every second</option>'
+          + '  <option value="50">20 every second</option>'
+          + '</select>'
+          + '<button class="top">Add top item</button>'
+          + '<button class="bottom">Add bottom item</button>'
+          + '<button class="scroll-to-top">Scroll to top</button>';
+          
+        $el.append('<div class="column__header">' + tpsSelect + '</div>')
+        $el.append('<div class="column__body"></div>');
+
+        // Bind events
+        $el.on('change', '.tps', function(event) {
+          insertContentEvery = parseInt(event.target.value);
+
+          if (insertContentEvery) { insertContent(); }
+        })
+
+        $el.on('click', 'button.top', function(event) {
+          insertContent(2);
+        })
+
+        $el.on('click', 'button.bottom', function(event) {
+          insertContent(2, content.length + 1);
+        })
+
+        $el.on('click', 'button.scroll-to-top', function(event) {
+          column.scrollToTop();
+        })
+
+        for (var i=0; i<ITEMS_TO_RENDER; i++) {
+          var randomIndex = Math.floor(Math.random() * sampleContent.length);
+          content.push({
+            id: i + '',
+            html: sampleContent[randomIndex].html,
+            sortIndex: i
+          });
+        }
+
+        var column = new InfiniScroll({
+          el: $el.find('.column__body'),
+          renderItem: function(itemToRender) {
+            return itemToRender.html;
+          },
+          onScroll: function(result) {
+            // console.log(result);
+          }
+        });
+
+        column.addContent(content);        
+
+        function insertContent(indexToInsert, insertAt) {
+          var randomIndex = indexToInsert || Math.floor(Math.random() * sampleContent.length);
+
+          if (content.length > 500) {
+            content.splice(500);     
+          }
+          
+          content.unshift({
+            id: 'new-item-' + Date.now(),
+            html: sampleContent[randomIndex].html,
+            sortIndex: insertAt || insertIndex
+          });
+
+          column.addContent(content);
+          // column.replaceContent(content);
+
+          insertIndex -= 1;
+
+          if (insertContentEvery) { 
+            setTimeout(insertContent, insertContentEvery)
+          }
+        }
+      });
+
+    </script>
+  </body>
+</html>
