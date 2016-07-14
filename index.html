@@ -20,6 +20,7 @@
         max-height: 100%;
         font-size: 11px;
         float: left;
+        overflow: auto;
       }
 
       .column__body {
@@ -38,7 +39,8 @@
 
     <script src="https://code.jquery.com/jquery-2.2.4.js"></script> 
     <script src="sample_content.js" charset="utf-8"></script>
-    <script src="main.es6.js" charset="utf-8"></script>
+    <!-- <script src="main.es6.js" charset="utf-8"></script> -->
+    <script src="render.es6.js" charset="utf-8"></script>
   </head>
   <body>
     
@@ -73,48 +75,82 @@
           + '<button class="bottom">Add bottom item</button>'
           + '<button class="scroll-to-top">Scroll to top</button>';
           
-        $el.append('<div class="column__header">' + tpsSelect + '</div>')
-        $el.append('<div class="column__body"></div>');
+        // $el.append('<div class="column__header">' + tpsSelect + '</div>')
+        // $el.append('<div class="column__body"></div>');
 
-        // Bind events
-        $el.on('change', '.tps', function(event) {
-          insertContentEvery = parseInt(event.target.value);
+        // // Bind events
+        // $el.on('change', '.tps', function(event) {
+        //   insertContentEvery = parseInt(event.target.value);
 
-          if (insertContentEvery) { insertContent(); }
-        })
+        //   if (insertContentEvery) { insertContent(); }
+        // })
 
-        $el.on('click', 'button.top', function(event) {
-          insertContent(2);
-        })
+        // $el.on('click', 'button.top', function(event) {
+        //   insertContent(2);
+        // })
 
-        $el.on('click', 'button.bottom', function(event) {
-          insertContent(2, content.length + 1);
-        })
+        // $el.on('click', 'button.bottom', function(event) {
+        //   insertContent(2, content.length + 1);
+        // })
 
-        $el.on('click', 'button.scroll-to-top', function(event) {
-          column.scrollToTop();
-        })
+        // $el.on('click', 'button.scroll-to-top', function(event) {
+        //   column.scrollToTop();
+        // })
 
-        for (var i=0; i<ITEMS_TO_RENDER; i++) {
-          var randomIndex = Math.floor(Math.random() * sampleContent.length);
-          content.push({
-            id: i + '',
-            html: sampleContent[randomIndex].html,
-            sortIndex: i
-          });
-        }
+        // for (var i=0; i<ITEMS_TO_RENDER; i++) {
+        //   var randomIndex = Math.floor(Math.random() * sampleContent.length);
+        //   content.push({
+        //     id: i + '',
+        //     html: sampleContent[randomIndex].html,
+        //     sortIndex: i
+        //   });
+        // }
 
-        var column = new InfiniScroll({
-          el: $el.find('.column__body'),
-          renderItem: function(itemToRender) {
-            return itemToRender.html;
-          },
-          onScroll: function(result) {
-            // console.log(result);
+        // var column = new InfiniScroll({
+        //   el: $el.find('.column__body'),
+        //   renderItem: function(itemToRender) {
+        //     return itemToRender.html;
+        //   },
+        //   onScroll: function(result) {
+        //     // console.log(result);
+        //   }
+        // });
+
+
+        var content = sampleContent.map(function(item) {
+          var elToInsert = document.createElement('div');
+          elToInsert.innerHTML = item.html;
+          elToInsert = elToInsert.firstChild;
+
+          return {
+            id: item.id,
+            node: elToInsert
           }
         });
 
-        column.addContent(content);        
+        console.log(content);
+
+
+        console.log(
+          render({
+            container: document.querySelector('.column'),
+            content: content,
+            pivot: content[3],
+            offset: 50
+          })
+        );
+
+
+
+
+
+
+
+
+
+
+
+
 
         function insertContent(indexToInsert, insertAt) {
           var randomIndex = indexToInsert || Math.floor(Math.random() * sampleContent.length);

@@ -10,8 +10,7 @@ class InfiniScroll {
 
         this.onScroll = opts.onScroll || function () {
             /* 
-                No-op
-                
+                No-op        
                 This gets called with:
                 {
                     distanceFromTop: XXX,
