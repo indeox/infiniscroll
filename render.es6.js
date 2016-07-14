@@ -56,15 +56,10 @@ function render({
     // Move the scroll position
     $target.scrollTop = scrollTop;
 
-    // Make some bumper nodes
-    const topBumperNode = document.createElement('div');
-    topBumperNode.style.height = `${offsetFromTop}px`;
-    const bottomBumperNode = document.createElement('div');
-    bottomBumperNode.style.height = `${offsetAtBottom}px`;
-
-    // Add the offset nodes to the top of the list
-    $slice.insertBefore(topBumperNode, $slice.firstChild);
-    $slice.appendChild(bottomBumperNode);
+    // Translate & bumper!
+    $slice.style.transform = `translateY(${offsetFromTop}px)`;
+    const [totalHeight = 0] = heightSums.slice(-1);
+    $container.style.height = `${totalHeight}px`;
 
     // Remove nodes before and after
     itemsBeforeStart.forEach(({ node }) => $slice.removeChild(node));
