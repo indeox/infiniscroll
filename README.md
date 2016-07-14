@@ -1,6 +1,8 @@
-## InfiniScroll
+# InfiniScroll*
 
-A (still very experimental) way to render large virtual lists in the browser
+Yet another (still very experimental) way to render large virtual lists in the browser
+
+`* Suggestions for better names accepted`
 
 ### To run
 
