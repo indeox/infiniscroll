@@ -24,14 +24,15 @@ function render({
         heightCache[id] = node.offsetHeight;
     });
 
-    // Scroll to pivot!
-    const pivotIndex = content.indexOf(pivot);
-    const nodesBeforePivot = content.slice(0, pivotIndex);
-    const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
     // Viewport height should be use clientHeight to avoid a measurement that includes
     // the border, as this will throw off the calculation below
     const viewportHeight = $target.clientHeight; // TODO cacheable
     const containerHeight = $container.offsetHeight; // TODO cacheable
+
+    // How far down the list should we be scrolled?
+    const pivotIndex = content.indexOf(pivot);
+    const nodesBeforePivot = content.slice(0, pivotIndex);
+    const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
     // Don't over-scroll
     const scrollTop = Math.min(
         spaceBeforePivot - offset,
