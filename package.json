@@ -6,7 +6,7 @@
     "start": "budo src/render.js --live -- -s render -t [ babelify --presets [ es2015 stage-1 ] ]",
     "build": "browserify src/main.js -s InfiniScroll -t [ babelify --presets [ es2015 stage-1 ] ] -o infiniscroll.js",
     "test": "babel-tape-runner 'src/__tests__/**/*.js'",
-    "test:watch": "watchify src/__tests__/**/*.js -o test_bundle.js -v"
+    "test:watch": "watchify src/__tests__/render.test.js -o test_bundle.js -v"
   },
   "babel": {
     "presets": [
