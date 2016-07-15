@@ -51,34 +51,54 @@
     </div>
 
     <script>
-        var content = sampleContent.map(function(item) {
+        var content = Array.from({ length: 100 }).map(function(item, i) {
+          var item = sampleContent[
+            Math.floor(Math.random() * sampleContent.length)
+          ];
           var elToInsert = document.createElement('div');
           elToInsert.innerHTML = item.html;
           elToInsert = elToInsert.firstChild;
 
           return {
-            id: item.id,
+            id: i,
             node: elToInsert
           }
         });
 
         var column = document.querySelector('.column');
 
-        console.log(content);
+        column.addEventListener('scroll', function () {
+          go();
+        }, true);
 
         var lastOutput = {};
-        var i = setInterval(function () {
-          console.log(
-            lastOutput = render(lastOutput, {
-              $target: column,
-              content: content,
-              offset: -column.scrollTop
-            })
-          );
-        }, 1000);
+        function go() {
+          lastOutput = render(lastOutput, {
+            $target: column,
+            content: content,
+            offset: -column.scrollTop
+          })
+        }
 
         function pause() {
           clearInterval(i);
+        }
+
+        go();
+
+        function shuffle(array) {
+          for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+          }
+          return array;
+        }
+
+        function reorder() {
+          shuffle(content); // mutation, eeeeek
+          go()
         }
     </script>
   </body>
