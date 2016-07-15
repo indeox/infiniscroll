@@ -20,7 +20,7 @@ function render({
     // Render content in the $target node
     $slice.innerHTML = '';
     $slice.style.transform = '';
-    content.forEach(({id, node}) => {
+    content.forEach(({id, node}, index) => {
         $slice.appendChild(node);
         heightCache[id] = node.offsetHeight;
     });
