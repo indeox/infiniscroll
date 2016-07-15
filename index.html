@@ -69,11 +69,11 @@
         var lastOutput = {};
         var i = setInterval(function () {
           console.log(
-            lastOutput = render({
+            lastOutput = render(lastOutput, {
               $target: column,
               content: content,
               offset: -column.scrollTop
-            }, lastOutput)
+            })
           );
         }, 1000);
 

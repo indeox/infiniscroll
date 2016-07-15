@@ -16,18 +16,22 @@ function getBestScrollTop(containerHeight, viewportHeight, targetScrollTop) {
 }
 
 function render({
+    // These values act as memory for this function. They should all be optional
+    // and be present on the output object.
+    scrollTop: previousScrollTop = 0,
+    $slice: $previousSlice,
+    $container: $previousContainer,
+    viewportHeight: previousViewportHeight,
+    containerHeight: previousContainerHeight,
+    heightCache = {}
+}, {
     $target,
     content = [],
     pivot = content[0],
-    offset = 0,
-    heightCache = {}
-}, {
-    // These values act as memory for this function. They should all be optional
-    // and be present on the output object.
-    scrollTop: previousScrollTop = 0
-}={}) {
-    const $slice = $target.querySelector('.slice');
-    const $container = $target.querySelector('.container');
+    offset = 0
+}) {
+    const $slice = $previousSlice || $target.querySelector('.slice');
+    const $container = $previousContainer || $target.querySelector('.container');
 
     // Quick access to item heights
     const getHeight = makeGetHeight(heightCache);
@@ -93,7 +97,11 @@ function render({
         content,
         pivot,
         offset,
-        scrollTop
+        scrollTop,
+        $slice,
+        $container,
+        viewportHeight,
+        containerHeight
     };
 }
 
