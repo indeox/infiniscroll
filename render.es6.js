@@ -11,6 +11,7 @@ function render({
     offset = 0,
     heightCache = {}
 }) {
+    console.log('---------------------------');
     const $slice = $target.querySelector('.slice');
     const $container = $target.querySelector('.container');
 
@@ -18,6 +19,7 @@ function render({
 
     // Render content in the $target node
     $slice.innerHTML = '';
+    $slice.style.transform = '';
     content.forEach(({id, node}) => {
         $slice.appendChild(node);
         heightCache[id] = node.offsetHeight;
@@ -27,10 +29,17 @@ function render({
     const pivotIndex = content.indexOf(pivot);
     const nodesBeforePivot = content.slice(0, pivotIndex);
     const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
-    const scrollTop = spaceBeforePivot - offset;
+    // Viewport height should be use clientHeight to avoid a measurement that includes
+    // the border, as this will throw off the calculation below
+    const viewportHeight = $target.clientHeight; // TODO cacheable
+    const containerHeight = $container.offsetHeight; // TODO cacheable
+    // Don't over-scroll
+    const scrollTop = Math.min(
+        spaceBeforePivot - offset,
+        containerHeight - viewportHeight
+    );
 
     // Remove pointless nodes and build the bumper
-    const viewportHeight = $target.offsetHeight; // TODO cacheable
     console.log('viewportHeight', viewportHeight);
     const startOffset = scrollTop - THRESHOLD;
     const endOffset = scrollTop + viewportHeight + THRESHOLD;
@@ -41,14 +50,13 @@ function render({
     console.log('heightSums', heightSums);
 
     const numNodesBeforeStart = heightSums.filter(sum => sum < startOffset).length;
-    // - 1 so that the we include the node where the sum is now greater
-    // TODO this needs clarification
-    const numNodesAfterEnd = heightSums.filter(sum => sum > endOffset).length - 1;
+    const numNodesBeforeEnd = heightSums.filter(sum => sum < endOffset).length;
     console.log('numNodesBeforeStart', numNodesBeforeStart);
-    console.log('numNodesAfterEnd', numNodesAfterEnd);
 
     const itemsBeforeStart = content.slice(0, numNodesBeforeStart);
-    const itemsAfterEnd = content.slice(-numNodesAfterEnd);
+    const itemsAfterEnd = content.slice(numNodesBeforeEnd + 1);
+    console.log('itemsBeforeStart', itemsBeforeStart);
+    console.log('itemsAfterEnd', itemsAfterEnd);
 
     // How much space do we need to replace at the bottom
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
@@ -58,8 +66,7 @@ function render({
 
     // Translate & bumper!
     $slice.style.transform = `translateY(${offsetFromTop}px)`;
-    const [totalHeight = 0] = heightSums.slice(-1);
-    $container.style.height = `${totalHeight}px`;
+    $container.style.height = `${containerHeight}px`;
 
     // Remove nodes before and after
     itemsBeforeStart.forEach(({ node }) => $slice.removeChild(node));
