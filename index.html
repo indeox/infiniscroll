@@ -51,13 +51,16 @@
     </div>
 
     <script>
-        var content = sampleContent.map(function(item) {
+        var content = Array.from({ length: 100 }).map(function(item, i) {
+          var item = sampleContent[
+            Math.floor(Math.random() * sampleContent.length)
+          ];
           var elToInsert = document.createElement('div');
           elToInsert.innerHTML = item.html;
           elToInsert = elToInsert.firstChild;
 
           return {
-            id: item.id,
+            id: i,
             node: elToInsert
           }
         });
