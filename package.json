@@ -15,6 +15,7 @@
     ]
   },
   "dependencies": {
+    "array-diff": "0.0.1",
     "fastdom": "^1.0.1",
     "lodash": "^3.10.1"
   },

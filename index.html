@@ -66,8 +66,12 @@
 
         console.log(content);
 
+        column.addEventListener('scroll', function () {
+          go();
+        }, true);
+
         var lastOutput = {};
-        var i = setInterval(function () {
+        function go() {
           console.log(
             lastOutput = render(lastOutput, {
               $target: column,
@@ -75,11 +79,13 @@
               offset: -column.scrollTop
             })
           );
-        }, 1000);
+        }
 
         function pause() {
           clearInterval(i);
         }
+
+        go();
     </script>
   </body>
 </html>
