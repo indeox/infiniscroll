@@ -77,3 +77,17 @@ test('scroll to pivot with offset test', (t) => {
 
   t.end();
 });
+
+test.only('scroll to offset test', (t) => {
+  const output = render({
+    $target: columnEl,
+    content: content,
+    offset: -10
+  });
+
+  t.equal(output.content.length, 20);
+  t.equal(columnEl.scrollTop, 10);
+  t.equal(columnEl.querySelectorAll('.item').length, 4);
+
+  t.end();
+});
