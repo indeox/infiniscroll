@@ -8,6 +8,13 @@ function makeGetHeight(cache) {
     return ({ id }) => cache[id];
 }
 
+function getBestScrollTop(containerHeight, viewportHeight, targetScrollTop) {
+    return Math.min(
+        targetScrollTop,
+        containerHeight - viewportHeight
+    );
+}
+
 function render({
     $target,
     content = [],
@@ -39,9 +46,10 @@ function render({
     const nodesBeforePivot = content.slice(0, pivotIndex);
     const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
     // Don't over-scroll
-    const scrollTop = Math.min(
-        spaceBeforePivot - offset,
-        containerHeight - viewportHeight
+    const scrollTop = getBestScrollTop(
+        containerHeight,
+        viewportHeight,
+        spaceBeforePivot - offset
     );
 
     // Remove pointless nodes and build the bumper
