@@ -49,7 +49,9 @@ function render({
     viewportHeight: previousViewportHeight,
     containerHeight: previousContainerHeight,
     heightCache = {},
-    renderedItems: previousRenderedItems
+    renderedItems: previousRenderedItems,
+    totalHeight: previousTotalHeight,
+    offsetFromTop: previousOffsetFromTop
 }, {
     $target,
     content = [],
@@ -62,9 +64,7 @@ function render({
     // Quick access to item heights
     const getHeight = makeGetHeight(heightCache);
 
-    // Render content in the $target node
-    $slice.style.transform = '';
-
+    // Measure the heights
     var totalHeight = 0;
     content.forEach(({id, node}, index) => {
         if (!heightCache.hasOwnProperty(id)) {
@@ -76,8 +76,8 @@ function render({
 
     // Viewport height should be use clientHeight to avoid a measurement that includes
     // the border, as this will throw off the calculation below
-    const viewportHeight = $target.clientHeight; // TODO cacheable
-    const containerHeight = $container.offsetHeight; // TODO cacheable
+    const viewportHeight = previousViewportHeight || $target.clientHeight; // TODO cacheable
+    const containerHeight = previousContainerHeight || $container.offsetHeight; // TODO cacheable
 
     // How far down the list should we be scrolled?
     const pivotIndex = content.indexOf(pivot);
@@ -106,23 +106,25 @@ function render({
         numNodesBeforeEnd
     );
 
-    // How much space do we need to replace at the bottom
+    // What do we need to change?
+    const changes = diff(previousRenderedItems || content, renderedItems);
+
+    // How much space do we need to replace at the bottom?
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
 
     // Move the scroll position
     if (scrollTop !== previousScrollTop) {
         $target.scrollTop = scrollTop;
-    } else {
-        console.log('skipping setting scrollTop');
+    }
+    // Translate & bumper!
+    if (offsetFromTop !== previousOffsetFromTop) {
+        $slice.style.transform = `translateY(${offsetFromTop}px)`;
+    }
+    if (totalHeight !== previousTotalHeight) {
+        $container.style.height = `${totalHeight}px`;
     }
 
-    // Translate & bumper!
-    $slice.style.transform = `translateY(${offsetFromTop}px)`;
-    $container.style.height = `${totalHeight}px`;
-
-    // Remove nodes before and after
-    const changes = diff(previousRenderedItems || content, renderedItems);
-
+    // Make the changes!
     var $lastNode;
     changes.forEach(([op, items]) => {
         items.forEach(({ node: $node, id }) => {
@@ -142,7 +144,9 @@ function render({
         $container,
         viewportHeight,
         containerHeight,
-        renderedItems
+        renderedItems,
+        totalHeight,
+        offsetFromTop
     };
 }
 

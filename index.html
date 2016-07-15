@@ -72,13 +72,11 @@
 
         var lastOutput = {};
         function go() {
-          console.log(
-            lastOutput = render(lastOutput, {
-              $target: column,
-              content: content,
-              offset: -column.scrollTop
-            })
-          );
+          lastOutput = render(lastOutput, {
+            $target: column,
+            content: content,
+            offset: -column.scrollTop
+          })
         }
 
         function pause() {
