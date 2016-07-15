@@ -11,7 +11,6 @@ function render({
     offset = 0,
     heightCache = {}
 }) {
-    console.log('---------------------------');
     const $slice = $target.querySelector('.slice');
     const $container = $target.querySelector('.container');
 
@@ -40,23 +39,16 @@ function render({
     );
 
     // Remove pointless nodes and build the bumper
-    console.log('viewportHeight', viewportHeight);
     const startOffset = scrollTop - THRESHOLD;
     const endOffset = scrollTop + viewportHeight + THRESHOLD;
-    console.log('startOffset', startOffset);
-    console.log('endOffset', endOffset);
     // TODO suuuuuper inefficient
     const heightSums = content.map((_, i) => sum(content.slice(0, i+1).map(getHeight)));
-    console.log('heightSums', heightSums);
 
     const numNodesBeforeStart = heightSums.filter(sum => sum < startOffset).length;
     const numNodesBeforeEnd = heightSums.filter(sum => sum < endOffset).length;
-    console.log('numNodesBeforeStart', numNodesBeforeStart);
 
     const itemsBeforeStart = content.slice(0, numNodesBeforeStart);
     const itemsAfterEnd = content.slice(numNodesBeforeEnd + 1);
-    console.log('itemsBeforeStart', itemsBeforeStart);
-    console.log('itemsAfterEnd', itemsAfterEnd);
 
     // How much space do we need to replace at the bottom
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
