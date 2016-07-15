@@ -4,6 +4,10 @@ function sum(arr) {
     return arr.reduce((a, b) => a + b, 0);
 }
 
+function makeGetHeight(cache) {
+    return ({ id }) => cache[id];
+}
+
 function render({
     $target,
     content = [],
@@ -14,7 +18,8 @@ function render({
     const $slice = $target.querySelector('.slice');
     const $container = $target.querySelector('.container');
 
-    const getHeight = ({ id }) => heightCache[id];
+    // Quick access to item heights
+    const getHeight = makeGetHeight(heightCache);
 
     // Render content in the $target node
     $slice.innerHTML = '';
