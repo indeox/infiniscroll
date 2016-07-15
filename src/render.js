@@ -1,6 +1,5 @@
 import diff from "./diff";
 
-const THRESHOLD = 100;
 
 function sum(arr) {
     return arr.reduce((a, b) => a + b, 0);
@@ -51,12 +50,14 @@ function render({
     heightCache = {},
     renderedItems: previousRenderedItems,
     totalHeight: previousTotalHeight,
-    offsetFromTop: previousOffsetFromTop
+    offsetFromTop: previousOffsetFromTop,
+    threshold: previousThreshold
 }, {
     $target,
     content = [],
     pivot = content[0],
-    offset = 0
+    offset = 0,
+    threshold = previousThreshold || 200
 }) {
     const $slice = $previousSlice || $target.querySelector('.slice');
     const $container = $previousContainer || $target.querySelector('.container');
@@ -91,8 +92,8 @@ function render({
     );
 
     // Remove pointless nodes and build the bumper
-    const startOffset = scrollTop - THRESHOLD;
-    const endOffset = scrollTop + viewportHeight + THRESHOLD;
+    const startOffset = scrollTop - threshold;
+    const endOffset = scrollTop + viewportHeight + threshold;
     // TODO suuuuuper inefficient
     const heightSums = content.map((_, i) => sum(content.slice(0, i+1).map(getHeight)));
 
@@ -146,7 +147,8 @@ function render({
         containerHeight,
         renderedItems,
         totalHeight,
-        offsetFromTop
+        offsetFromTop,
+        threshold
     };
 }
 
