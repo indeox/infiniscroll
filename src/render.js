@@ -21,7 +21,11 @@ function render({
     pivot = content[0],
     offset = 0,
     heightCache = {}
-}) {
+}, {
+    // These values act as memory for this function. They should all be optional
+    // and be present on the output object.
+    scrollTop: previousScrollTop = 0
+}={}) {
     const $slice = $target.querySelector('.slice');
     const $container = $target.querySelector('.container');
 
@@ -68,7 +72,11 @@ function render({
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
 
     // Move the scroll position
-    $target.scrollTop = scrollTop;
+    if (scrollTop !== previousScrollTop) {
+        $target.scrollTop = scrollTop;
+    } else {
+        console.log('skipping setting scrollTop');
+    }
 
     // Translate & bumper!
     $slice.style.transform = `translateY(${offsetFromTop}px)`;
@@ -84,7 +92,8 @@ function render({
         heightCache,
         content,
         pivot,
-        offset
+        offset,
+        scrollTop
     };
 }
 
