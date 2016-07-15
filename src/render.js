@@ -21,8 +21,6 @@ function render({
     $slice.innerHTML = '';
     $slice.style.transform = '';
     content.forEach(({id, node}, index) => {
-        // node.setAttribute('id', id);
-        // node.querySelector('.js-timestamp a').innerHTML = `<strong>${index}</strong>`;
         $slice.appendChild(node);
         heightCache[id] = node.offsetHeight;
     });
