@@ -16,6 +16,13 @@ function getBestScrollTop(containerHeight, viewportHeight, targetScrollTop) {
     );
 }
 
+function sumLeft(arr) {
+    return arr.reduce(
+        ({ total, acc }, v) => ({ total: total + v, acc: [...acc, total + v] }),
+        { total: 0, acc: [] }
+    ).acc;
+}
+
 function insertAfter($new, $ref) {
     $ref.parentNode.insertBefore($new, $ref.nextSibling);
 }
@@ -91,11 +98,10 @@ function render({
         spaceBeforePivot - offset
     );
 
-    // Remove pointless nodes and build the bumper
+    // What to render?
     const startOffset = scrollTop - threshold;
     const endOffset = scrollTop + viewportHeight + threshold;
-    // TODO suuuuuper inefficient
-    const heightSums = content.map((_, i) => sum(content.slice(0, i+1).map(getHeight)));
+    const heightSums = sumLeft(content.map(getHeight));
 
     const numNodesBeforeStart = heightSums.filter(sum => sum < startOffset).length;
     const numNodesBeforeEnd = heightSums.filter(sum => sum < endOffset).length + 1;
