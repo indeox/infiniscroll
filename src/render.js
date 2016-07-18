@@ -1,5 +1,7 @@
 import diff from "./diff";
 
+const CONTAINER_CLASS = '__container';
+const SLICE_CLASS = '__slice';
 
 function sum(arr) {
     return arr.reduce((a, b) => a + b, 0);
@@ -25,6 +27,26 @@ function sumLeft(arr) {
 
 function insertAfter($new, $ref) {
     $ref.parentNode.insertBefore($new, $ref.nextSibling);
+}
+
+function getElements($target, [$previousContainer, $previousSlice]) {
+    let $container = $previousContainer || $target.querySelector(`.${CONTAINER_CLASS}`);
+
+    if (!$container) {
+        $container = document.createElement('div');
+        $container.setAttribute('class', CONTAINER_CLASS);
+        $target.appendChild($container);
+    }
+
+    let $slice = $previousSlice || $container.querySelector(`.${SLICE_CLASS}`);
+
+    if (!$slice) {
+        $slice = document.createElement('div');
+        $slice.setAttribute('class', SLICE_CLASS);
+        $container.appendChild($slice);
+    }
+
+    return [$container, $slice];
 }
 
 const opToFn = {
@@ -66,8 +88,7 @@ function render({
     offset = 0,
     threshold = previousThreshold || 200
 }) {
-    const $slice = $previousSlice || $target.querySelector('.slice');
-    const $container = $previousContainer || $target.querySelector('.container');
+    const [$container, $slice] = getElements($target, [$previousContainer, $previousSlice]);
 
     // Quick access to item heights
     const getHeight = makeGetHeight(heightCache);

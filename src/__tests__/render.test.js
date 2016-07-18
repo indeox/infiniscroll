@@ -3,30 +3,50 @@ const render = require('../render');
 
 // Build test content
 const NUM_OF_ITEMS = 20;
-const sampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae pharetra tellus. Nam nec dapibus nulla. Nunc id purus quis erat gravida dictum a vitae purus. Quisque luctus placerat nibh in bibendum.'
-const sampleContent = Array(NUM_OF_ITEMS).fill().map((_, index) => {
-  return {
-    id: index,
-    html: `<div class="item">${sampleText}</div>`
-  }
-});
+const sampleText = `
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  Donec vitae pharetra tellus. Nam nec dapibus nulla. Nunc
+  id purus quis erat gravida dictum a vitae purus. Quisque
+  luctus placerat nibh in bibendum.
+`;
+
+const fixture = document.createElement('div');
+fixture.innerHTML = `
+  <style>
+    .column {
+      width: 200px;
+      height: 300px;
+      overflow: auto;
+      outline: 1px solid red;
+    }
+
+    .container {
+      background: rgba(0,255,0,.1);
+      outline: 1px solid green;
+    }
+
+    .slice {
+      background: rgba(0,0,255,.1);
+      outline: 1px solid blue;
+    }
+  </style>
+  <div class="column"></div>
+`;
+document.body.appendChild(fixture);
 
 const columnEl = document.querySelector('.column');
-const content = sampleContent.map(function(item) {
-  let elToInsert = document.createElement('div');
-  elToInsert.innerHTML = item.html;
-  elToInsert = elToInsert.firstChild;
+const content = Array(NUM_OF_ITEMS).fill().map((_, index) => {
+  let node = document.createElement('div');
+  node.innerHTML = `<div class="item">${sampleText}</div>`;
 
   return {
-    id: item.id,
-    node: elToInsert
+    id: index,
+    node: node.firstChild
   }
 });
 
-
-
 test('basic render test', (t) => {
-  const output = render({
+  const output = render({}, {
     $target: columnEl,
     content: content
   });
@@ -38,7 +58,7 @@ test('basic render test', (t) => {
 });
 
 test('basic render test with a larger viewport', (t) => {
-  const output = render({
+  const output = render({}, {
     $target: columnEl,
     content: content
   });
@@ -50,7 +70,7 @@ test('basic render test with a larger viewport', (t) => {
 });
 
 test('scroll to pivot test', (t) => {
-  const output = render({
+  const output = render({}, {
     $target: columnEl,
     content: content,
     pivot: content[4]
@@ -79,7 +99,7 @@ test('scroll to pivot with offset test', (t) => {
 });
 
 test.only('scroll to offset test', (t) => {
-  const output = render({
+  const output = render({}, {
     $target: columnEl,
     content: content,
     offset: -10

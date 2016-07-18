@@ -11,10 +11,6 @@
     <meta charset="UTF-8" />
 
     <style>
-      body {
-        background: #1c6399
-      }
-
       .column {
         width: 270px;
         max-height: 100%;
@@ -22,19 +18,6 @@
         float: left;
         overflow: auto;
       }
-
-      .column__body {
-        max-height: 100%;
-        overflow: auto;
-      }
-
-      .column__header button {
-        margin: 4px;
-        border: 1px solid #ccc !important;
-        background: transparent;
-        color: #ffffff;
-      }
-
     </style>
 
     <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
@@ -44,11 +27,7 @@
   </head>
   <body>
 
-    <div class="column viewport">
-      <div class="container">
-        <div class="slice"></div>
-      </div>
-    </div>
+    <div class="column"></div>
 
     <script>
         var content = Array.from({ length: 100 }).map(function(item, i) {
