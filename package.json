@@ -1,7 +1,6 @@
 {
   "name": "infiniscroll",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "start": "budo src/render.js --live -- -s render -t [ babelify --presets [ es2015 stage-1 ] ]",
     "build": "browserify src/main.js -s InfiniScroll -t [ babelify --presets [ es2015 stage-1 ] ] -o infiniscroll.js",
