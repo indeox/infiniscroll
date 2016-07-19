@@ -25,7 +25,7 @@
       }
     </style>
 
-    <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.13.1/lodash.min.js"></script>
     <script src="src/sample_content.js" charset="utf-8"></script>
     <!-- <script src="main.es6.js" charset="utf-8"></script> -->
     <script src="render.js" charset="utf-8"></script>
@@ -52,9 +52,9 @@
 
         var column = document.querySelector('.column');
 
-        column.addEventListener('scroll', function () {
+        column.addEventListener('scroll', _.throttle(function () {
           go();
-        }, true);
+        }, 10), true);
 
         var lastOutput = {};
         function go() {
