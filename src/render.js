@@ -170,13 +170,13 @@ function render({
 
     // If we have an active element and nothing's focused, it's worth trying to
     // refocus as the element might have been added back.
-    let didRefocus = false;
     if ($activeElement && document.activeElement === document.body) {
         $activeElement.focus();
-        didRefocus = true;
     }
     // Did refocusing work?
+    let didRefocus = false;
     if (document.activeElement === $activeElement) {
+        didRefocus = true;
         // Refocusing worked, so we can forget our active element
         $activeElement = undefined;
     }
