@@ -16,4 +16,3 @@ To test:
 ```sh
 npm test
 ```
-

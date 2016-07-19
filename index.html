@@ -18,6 +18,11 @@
         float: left;
         overflow: auto;
       }
+
+      :focus {
+        background: red !important;
+        color: white !important;
+      }
     </style>
 
     <script src="https://code.jquery.com/jquery-2.2.4.js"></script>
@@ -28,6 +33,7 @@
   <body>
 
     <div class="column"></div>
+    <input style="position:absolute; top:0; right:0;"/>
 
     <script>
         var content = Array.from({ length: 100 }).map(function(item, i) {

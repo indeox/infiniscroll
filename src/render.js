@@ -80,7 +80,8 @@ function render({
     renderedItems: previousRenderedItems,
     totalHeight: previousTotalHeight,
     offsetFromTop: previousOffsetFromTop,
-    threshold: previousThreshold
+    threshold: previousThreshold,
+    $activeElement
 }, {
     $target,
     content = [],
@@ -140,8 +141,48 @@ function render({
     // How much space do we need to replace at the bottom?
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
 
+    // Make the changes!
+    //
+    // A note on focus handling
+    // One of the following things will happen:
+    //  - A focused element is removed from the DOM:
+    //    We should remember it and try to reapply focus until we have a reason
+    //    to think that another node is now the focus target.
+    //  - A previously focused element is added back to the DOM
+    //  - Another element has been focused since the last render
+    if ($activeElement && document.activeElement !== document.body) {
+        // Something else got focused, we can forget about restoring focus
+        // to our element.
+        $activeElement = undefined;
+    }
+    let blurListener = (e) => {
+        $activeElement = e.target;
+    };
+    $target.addEventListener('blur', blurListener, true);
+    let $lastNode;
+    changes.forEach(([op, items]) => {
+        items.forEach(({ node: $node, id }) => {
+            opToFn[op]($slice, $node, $lastNode);
+            $lastNode = $node;
+        });
+    });
+    $target.removeEventListener('blur', blurListener, true);
+
+    // If we have an active element and nothing's focused, it's worth trying to
+    // refocus as the element might have been added back.
+    let didRefocus = false;
+    if ($activeElement && document.activeElement === document.body) {
+        $activeElement.focus();
+        didRefocus = true;
+    }
+    // Did refocusing work?
+    if (document.activeElement === $activeElement) {
+        // Refocusing worked, so we can forget our active element
+        $activeElement = undefined;
+    }
+
     // Move the scroll position
-    if (scrollTop !== previousScrollTop) {
+    if (scrollTop !== previousScrollTop || didRefocus) {
         $target.scrollTop = scrollTop;
     }
     // Translate & bumper!
@@ -151,15 +192,6 @@ function render({
     if (totalHeight !== previousTotalHeight) {
         $container.style.height = `${totalHeight}px`;
     }
-
-    // Make the changes!
-    var $lastNode;
-    changes.forEach(([op, items]) => {
-        items.forEach(({ node: $node, id }) => {
-            opToFn[op]($slice, $node, $lastNode);
-            $lastNode = $node;
-        });
-    });
 
     return {
         $target,
@@ -175,7 +207,8 @@ function render({
         renderedItems,
         totalHeight,
         offsetFromTop,
-        threshold
+        threshold,
+        $activeElement
     };
 }
 
