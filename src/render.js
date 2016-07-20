@@ -49,13 +49,27 @@ function getElements($target, [$previousContainer, $previousSlice]) {
     return [$container, $slice];
 }
 
+function calculateHeights(content, $slice, heightCache = {}) {
+    var totalHeight = 0;
+    var newItems = [];
+    content.forEach((item, index) => {
+        const {id, node} = item;
+        if (!heightCache.hasOwnProperty(id)) {
+            $slice.appendChild(node);
+            heightCache[id] = node.offsetHeight;
+            newItems.push(item);
+        }
+        totalHeight += heightCache[id];
+    });
+    return [totalHeight, heightCache, newItems];
+}
+
 const opToFn = {
     // Remove
     '-': ($parent, $node) => $parent.removeChild($node),
     // Paste (has moved from somewhere else)
-    'p': ($parent, $node, $lastNode) => {
-        $parent.removeChild($node);
-        opToFn['+']($parent, $node, $lastNode);
+    'p': (...args) => {
+        opToFn['+'](...args);
     },
     '=': () => {},
     'x': () => {},
@@ -76,8 +90,8 @@ function render({
     $container: $previousContainer,
     viewportHeight: previousViewportHeight,
     containerHeight: previousContainerHeight,
-    heightCache = {},
-    renderedItems: previousRenderedItems,
+    heightCache: previousHeightCache = {},
+    renderedItems: previousRenderedItems = [],
     totalHeight: previousTotalHeight,
     offsetFromTop: previousOffsetFromTop,
     threshold: previousThreshold,
@@ -91,23 +105,20 @@ function render({
 }) {
     const [$container, $slice] = getElements($target, [$previousContainer, $previousSlice]);
 
+    // Measure the heights and track new items
+    const [
+        totalHeight,
+        heightCache,
+        newItems
+    ] = calculateHeights(content, $slice, previousHeightCache);
+
     // Quick access to item heights
     const getHeight = makeGetHeight(heightCache);
 
-    // Measure the heights
-    var totalHeight = 0;
-    content.forEach(({id, node}, index) => {
-        if (!heightCache.hasOwnProperty(id)) {
-            $slice.appendChild(node);
-            heightCache[id] = node.offsetHeight;
-        }
-        totalHeight += heightCache[id];
-    });
-
     // Viewport height should be use clientHeight to avoid a measurement that includes
     // the border, as this will throw off the calculation below
-    const viewportHeight = previousViewportHeight || $target.clientHeight; // TODO cacheable
-    const containerHeight = previousContainerHeight || $container.offsetHeight; // TODO cacheable
+    const viewportHeight = previousViewportHeight || $target.clientHeight;
+    const containerHeight = previousContainerHeight || $container.offsetHeight;
 
     // How far down the list should we be scrolled?
     const pivotIndex = content.indexOf(pivot);
@@ -136,9 +147,10 @@ function render({
     );
 
     // What do we need to change?
-    const changes = diff(previousRenderedItems || content, renderedItems);
+    // By default we assume we rendered everything
+    const changes = diff(previousRenderedItems.concat(newItems), renderedItems);
 
-    // How much space do we need to replace at the bottom?
+    // How much space do we need to replace at the top?
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
 
     // Make the changes!
