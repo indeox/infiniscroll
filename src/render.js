@@ -1,4 +1,5 @@
 import diff from "./diff";
+import restoreFocus from "./restoreFocus";
 
 const CONTAINER_CLASS = '__container';
 const SLICE_CLASS = '__slice';
@@ -94,7 +95,7 @@ function render({
     totalHeight: previousTotalHeight,
     offsetFromTop: previousOffsetFromTop,
     threshold: previousThreshold,
-    $activeElement
+    $activeElement: $previousActiveElement
 }, {
     $target,
     content = [],
@@ -160,46 +161,24 @@ function render({
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
 
     // Make the changes!
-    //
-    // A note on focus handling
-    // One of the following things will happen:
-    //  - A focused element is removed from the DOM:
-    //    We should remember it and try to reapply focus until we have a reason
-    //    to think that another node is now the focus target.
-    //  - A previously focused element is added back to the DOM
-    //  - Another element has been focused since the last render
-    if ($activeElement && document.activeElement !== document.body) {
-        // Something else got focused, we can forget about restoring focus
-        // to our element.
-        $activeElement = undefined;
-    }
-    let blurListener = (e) => {
-        $activeElement = e.target;
-    };
-    $target.addEventListener('blur', blurListener, true);
-    let $lastNode;
-    changes.forEach(([op, items]) => {
-        items.forEach(({ node: $node, id }) => {
-            opToFn[op]($slice, $node, $lastNode);
-            $lastNode = $node;
-        });
-    });
-    $target.removeEventListener('blur', blurListener, true);
+    const [
+        didRestoreFocus,
+        $activeElement
+    ] = restoreFocus(
+        $target,
+        () => {
+            let $lastNode;
+            changes.forEach(([op, items]) => {
+                items.forEach(({ node: $node, id }) => {
+                    opToFn[op]($slice, $node, $lastNode);
+                    $lastNode = $node;
+                });
+            });
+        },
+        { $activeElement: $previousActiveElement }
+    );
 
-    // If we have an active element and nothing's focused, it's worth trying to
-    // refocus as the element might have been added back.
-    if ($activeElement && document.activeElement === document.body) {
-        $activeElement.focus();
-    }
-    // Did refocusing work?
-    let didRefocus = false;
-    if (document.activeElement === $activeElement) {
-        didRefocus = true;
-        // Refocusing worked, so we can forget our active element
-        $activeElement = undefined;
-    }
-
-    if (pivotItem || didRefocus) {
+    if (pivotItem || didRestoreFocus) {
         $target.scrollTop = scrollTop;
     }
     // Translate & bumper!
