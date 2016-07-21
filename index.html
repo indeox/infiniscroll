@@ -36,7 +36,7 @@
     <input style="position:absolute; top:0; right:0; width: 50%;"/>
 
     <script>
-        var content = Array.from({ length: 100 }).map(function(item, i) {
+        var content = Array.from({ length: 1000 }).map(function(item, i) {
           var item = sampleContent[
             Math.floor(Math.random() * sampleContent.length)
           ];
@@ -50,6 +50,8 @@
           }
         });
 
+        let contentEnd = ~~(content.length * 0.1);
+
         var column = document.querySelector('.column');
 
         column.addEventListener('scroll', _.throttle(function () {
@@ -60,7 +62,7 @@
         function go() {
           lastOutput = render(lastOutput, {
             $target: column,
-            content: content
+            content: content.slice(0, contentEnd)
           })
         }
 
@@ -84,6 +86,11 @@
           shuffle(content); // mutation, eeeeek
           go()
         }
+
+        setInterval(function () {
+          contentEnd++;
+          go();
+        }, 1000);
     </script>
   </body>
 </html>

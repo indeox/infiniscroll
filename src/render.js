@@ -12,10 +12,10 @@ function makeGetHeight(cache) {
     return ({ id }) => cache[id];
 }
 
-function getBestScrollTop(containerHeight, viewportHeight, targetScrollTop) {
+function getBestScrollTop(totalHeight, viewportHeight, targetScrollTop) {
     return Math.min(
         targetScrollTop,
-        containerHeight - viewportHeight
+        totalHeight - viewportHeight
     );
 }
 
@@ -95,10 +95,9 @@ function render({
     $slice: $previousSlice,
     $container: $previousContainer,
     viewportHeight: previousViewportHeight,
-    containerHeight: previousContainerHeight,
+    totalHeight: previousTotalHeight,
     heightCache: previousHeightCache = {},
     renderedItems: previousRenderedItems = [],
-    totalHeight: previousTotalHeight,
     offsetFromTop: previousOffsetFromTop,
     threshold: previousThreshold,
     $activeElement: $previousActiveElement
@@ -125,9 +124,8 @@ function render({
     const getHeight = makeGetHeight(heightCache);
 
     // Viewport height should be use clientHeight to avoid a measurement that includes
-    // the border, as this will throw off the calculation below
+    // the border, as this will throw off the calculation below;
     const viewportHeight = previousViewportHeight || $target.clientHeight;
-    const containerHeight = previousContainerHeight || $container.offsetHeight;
 
     // We only care about moving the pivot if one was supplied, possibly with an offset.
     const targetScrollPosition = iff(pivotItem, () => {
@@ -138,8 +136,9 @@ function render({
     }, () => $target.scrollTop);
 
     // Don't over-scroll
+    // TODO scrollTop is now badly names. It's actually slice start.
     const scrollTop = getBestScrollTop(
-        containerHeight,
+        totalHeight,
         viewportHeight,
         targetScrollPosition
     );
@@ -202,7 +201,6 @@ function render({
         $slice,
         $container,
         viewportHeight,
-        containerHeight,
         renderedItems,
         totalHeight,
         offsetFromTop,
