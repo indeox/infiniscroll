@@ -53,6 +53,7 @@ function getElements($target, [$previousContainer, $previousSlice]) {
 function calculateHeights(content, $slice, heightCache = {}) {
     var totalHeight = 0;
     var newItems = [];
+    var changedItems = [];
     content.forEach((item, index) => {
         const {id, node, hasChanged} = item;
         if (!heightCache.hasOwnProperty(id)) {
@@ -61,11 +62,13 @@ function calculateHeights(content, $slice, heightCache = {}) {
             newItems.push(item);
         }
         if (hasChanged) {
+            $slice.appendChild(node);
             heightCache[id] = node.offsetHeight;
+            changedItems.push(item);
         }
         totalHeight += heightCache[id];
     });
-    return [totalHeight, heightCache, newItems];
+    return [totalHeight, heightCache, newItems, changedItems];
 }
 
 const iff = (
@@ -103,7 +106,10 @@ function render({
     renderedItems: previousRenderedItems = [],
     offsetFromTop: previousOffsetFromTop,
     threshold: previousThreshold,
-    $activeElement: $previousActiveElement
+    $activeElement: $previousActiveElement,
+    scrollTop: previousScrollTop,
+    visualFixItem: previousVisualFixItem,
+    visualFixItemOffset: previousVisualFixItemOffset
 }, {
     $target,
     content = [],
@@ -120,26 +126,41 @@ function render({
     const [
         totalHeight,
         heightCache,
-        newItems
+        newItems,
+        changedItems
     ] = calculateHeights(content, $slice, previousHeightCache);
 
     // Quick access to item heights
     const getHeight = makeGetHeight(heightCache);
+    const heightSums = sumLeft(content.map(getHeight));
 
     // Viewport height should be use clientHeight to avoid a measurement that includes
     // the border, as this will throw off the calculation below;
     const viewportHeight = previousViewportHeight || $target.clientHeight;
 
-    // We only care about moving the pivot if one was supplied, possibly with an offset.
-    const targetScrollPosition = iff(pivotItem, () => {
-        const pivotIndex = content.indexOf(pivotItem);
-        const nodesBeforePivot = content.slice(0, pivotIndex);
-        const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
-        return spaceBeforePivot - pivotOffset;
-    }, () => $target.scrollTop);
+    const targetScrollPosition = iff(
+        pivotItem,
+        () => {
+            const pivotIndex = content.indexOf(pivotItem);
+            const nodesBeforePivot = content.slice(0, pivotIndex);
+            const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
+            return spaceBeforePivot - pivotOffset;
+        },
+        () => iff(
+            // If something changed, we should fix the scroll position by returning to the same
+            // offset from a previously onscreen item
+            changedItems.length,
+            () => {
+                const visualFixItemIndex = content.indexOf(previousVisualFixItem);
+                const visualFixItemHeightSum = heightSums[visualFixItemIndex];
+                return visualFixItemHeightSum - previousVisualFixItemOffset;
+            },
+            // Otherwise we should just use the element's scroll position
+            () => $target.scrollTop
+        )
+    );
 
     // Don't over-scroll
-    // TODO scrollTop is now badly names. It's actually slice start.
     const scrollTop = getBestScrollTop(
         totalHeight,
         viewportHeight,
@@ -149,10 +170,17 @@ function render({
     // What to render?
     const startOffset = scrollTop - threshold;
     const endOffset = scrollTop + viewportHeight + threshold;
-    const heightSums = sumLeft(content.map(getHeight));
 
     const numNodesBeforeStart = heightSums.filter(sum => sum < startOffset).length;
     const numNodesBeforeEnd = heightSums.filter(sum => sum < endOffset).length + 1;
+
+    // Choose a visual fix item. This will be the top partially onscreen node.
+    const visualFixItemIndex = heightSums.filter(sum => sum < scrollTop).length;
+    const visualFixItem = content[visualFixItemIndex];
+    const visualFixItemOffset = heightSums[visualFixItemIndex] - scrollTop;
+
+    previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
+    visualFixItem.node.style.background = "hotpink";
 
     const itemsBeforeStart = content.slice(0, numNodesBeforeStart);
     const itemsAfterEnd = content.slice(numNodesBeforeEnd);
@@ -162,8 +190,13 @@ function render({
     );
 
     // What do we need to change?
-    // By default we assume we rendered everything
-    const changes = diff(previousRenderedItems.concat(newItems), renderedItems);
+    const changes = diff(
+        previousRenderedItems
+            .filter(item => !item.hasChanged)
+            .concat(newItems)
+            .concat(changedItems),
+        renderedItems
+    );
 
     // How much space do we need to replace at the top?
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
@@ -186,9 +219,6 @@ function render({
         { $activeElement: $previousActiveElement }
     );
 
-    if (pivotItem || didRestoreFocus) {
-        $target.scrollTop = scrollTop;
-    }
     // Translate & bumper!
     if (offsetFromTop !== previousOffsetFromTop) {
         $slice.style.transform = `translateY(${offsetFromTop}px)`;
@@ -196,6 +226,9 @@ function render({
     if (totalHeight !== previousTotalHeight) {
         $container.style.height = `${totalHeight}px`;
     }
+
+    // Always set the scrollTop
+    $target.scrollTop = scrollTop;
 
     return {
         $target,
@@ -208,7 +241,10 @@ function render({
         totalHeight,
         offsetFromTop,
         threshold,
-        $activeElement
+        $activeElement,
+        scrollTop,
+        visualFixItem,
+        visualFixItemOffset
     };
 }
 
