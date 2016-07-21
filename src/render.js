@@ -85,7 +85,6 @@ const opToFn = {
 function render({
     // These values act as memory for this function. They should all be optional
     // and be present on the output object.
-    scrollTop: previousScrollTop = 0,
     $slice: $previousSlice,
     $container: $previousContainer,
     viewportHeight: previousViewportHeight,
@@ -99,8 +98,8 @@ function render({
 }, {
     $target,
     content = [],
-    pivot = content[0],
-    offset = 0,
+    pivotItem,
+    pivotOffset = 0,
     threshold = previousThreshold || 200
 }) {
     const [$container, $slice] = getElements($target, [$previousContainer, $previousSlice]);
@@ -120,15 +119,22 @@ function render({
     const viewportHeight = previousViewportHeight || $target.clientHeight;
     const containerHeight = previousContainerHeight || $container.offsetHeight;
 
-    // How far down the list should we be scrolled?
-    const pivotIndex = content.indexOf(pivot);
-    const nodesBeforePivot = content.slice(0, pivotIndex);
-    const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
+    // We only care about moving the pivot if one was supplied, possibly with an offset.
+    let targetScrollPosition;
+    if (pivotItem) {
+        const pivotIndex = content.indexOf(pivotItem);
+        const nodesBeforePivot = content.slice(0, pivotIndex);
+        const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
+        targetScrollPosition = spaceBeforePivot - pivotOffset;
+    } else {
+        targetScrollPosition = $target.scrollTop;
+    }
+
     // Don't over-scroll
     const scrollTop = getBestScrollTop(
         containerHeight,
         viewportHeight,
-        spaceBeforePivot - offset
+        targetScrollPosition
     );
 
     // What to render?
@@ -193,8 +199,7 @@ function render({
         $activeElement = undefined;
     }
 
-    // Move the scroll position
-    if (scrollTop !== previousScrollTop || didRefocus) {
+    if (pivotItem || didRefocus) {
         $target.scrollTop = scrollTop;
     }
     // Translate & bumper!
@@ -209,9 +214,6 @@ function render({
         $target,
         heightCache,
         content,
-        pivot,
-        offset,
-        scrollTop,
         $slice,
         $container,
         viewportHeight,
