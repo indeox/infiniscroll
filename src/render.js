@@ -65,6 +65,12 @@ function calculateHeights(content, $slice, heightCache = {}) {
     return [totalHeight, heightCache, newItems];
 }
 
+const iff = (
+    predicate,
+    left = () => {},
+    right = () => {}
+) => (predicate ? left() : right());
+
 const opToFn = {
     // Remove
     '-': ($parent, $node) => $parent.removeChild($node),
@@ -101,9 +107,12 @@ function render({
     content = [],
     pivotItem,
     pivotOffset = 0,
-    threshold = previousThreshold || 200
+    threshold = previousThreshold || 400
 }) {
-    const [$container, $slice] = getElements($target, [$previousContainer, $previousSlice]);
+    const [
+        $container,
+        $slice
+    ] = getElements($target, [$previousContainer, $previousSlice]);
 
     // Measure the heights and track new items
     const [
@@ -121,15 +130,12 @@ function render({
     const containerHeight = previousContainerHeight || $container.offsetHeight;
 
     // We only care about moving the pivot if one was supplied, possibly with an offset.
-    let targetScrollPosition;
-    if (pivotItem) {
+    const targetScrollPosition = iff(pivotItem, () => {
         const pivotIndex = content.indexOf(pivotItem);
         const nodesBeforePivot = content.slice(0, pivotIndex);
         const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
-        targetScrollPosition = spaceBeforePivot - pivotOffset;
-    } else {
-        targetScrollPosition = $target.scrollTop;
-    }
+        return spaceBeforePivot - pivotOffset;
+    }, () => $target.scrollTop);
 
     // Don't over-scroll
     const scrollTop = getBestScrollTop(
