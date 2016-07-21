@@ -19,6 +19,10 @@
         overflow: auto;
       }
 
+      article {
+        overflow: hidden;
+      }
+
       :focus {
         background: red !important;
         color: white !important;
@@ -50,7 +54,7 @@
           }
         });
 
-        let contentEnd = ~~(content.length * 0.1);
+        let contentEnd = ~~(content.length * 0.01);
 
         var column = document.querySelector('.column');
 
@@ -91,6 +95,15 @@
           contentEnd++;
           go();
         }, 1000);
+
+        column.addEventListener('click', function () {
+          var item = content.slice(0, contentEnd)[~~(contentEnd * Math.random())];
+          item.node.style.height =
+            `${500 * Math.random() + 100}px`;
+          item.hasChanged = true;
+          go();
+          item.hasChanged = false;
+        });
     </script>
   </body>
 </html>

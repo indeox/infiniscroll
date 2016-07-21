@@ -54,11 +54,14 @@ function calculateHeights(content, $slice, heightCache = {}) {
     var totalHeight = 0;
     var newItems = [];
     content.forEach((item, index) => {
-        const {id, node} = item;
+        const {id, node, hasChanged} = item;
         if (!heightCache.hasOwnProperty(id)) {
             $slice.appendChild(node);
             heightCache[id] = node.offsetHeight;
             newItems.push(item);
+        }
+        if (hasChanged) {
+            heightCache[id] = node.offsetHeight;
         }
         totalHeight += heightCache[id];
     });
