@@ -107,7 +107,6 @@ function render({
     offsetFromTop: previousOffsetFromTop,
     threshold: previousThreshold,
     $activeElement: $previousActiveElement,
-    scrollTop: previousScrollTop,
     visualFixItem: previousVisualFixItem,
     visualFixItemOffset: previousVisualFixItemOffset
 }, {
@@ -138,26 +137,21 @@ function render({
     // the border, as this will throw off the calculation below;
     const viewportHeight = previousViewportHeight || $target.clientHeight;
 
+    // Should we restore focus around a particular element?
+    const fixItem = (changedItems.length ? previousVisualFixItem : pivotItem);
+    const fixItemOffset = (changedItems.length ? previousVisualFixItemOffset : pivotOffset)
+
     const targetScrollPosition = iff(
-        pivotItem,
+        fixItem,
         () => {
-            const pivotIndex = content.indexOf(pivotItem);
-            const nodesBeforePivot = content.slice(0, pivotIndex);
-            const spaceBeforePivot = sum(nodesBeforePivot.map(getHeight));
-            return spaceBeforePivot - pivotOffset;
+            // Find the item, figure out how much space is above it now and generate a new
+            // scroll position give our previous offset
+            const fixItemIndex = content.indexOf(fixItem);
+            const fixItemHeightSum = heightSums[fixItemIndex];
+            return fixItemHeightSum - fixItemOffset;
         },
-        () => iff(
-            // If something changed, we should fix the scroll position by returning to the same
-            // offset from a previously onscreen item
-            changedItems.length,
-            () => {
-                const visualFixItemIndex = content.indexOf(previousVisualFixItem);
-                const visualFixItemHeightSum = heightSums[visualFixItemIndex];
-                return visualFixItemHeightSum - previousVisualFixItemOffset;
-            },
-            // Otherwise we should just use the element's scroll position
-            () => $target.scrollTop
-        )
+        // Otherwise we should just use the element's scroll position
+        () => $target.scrollTop
     );
 
     // Don't over-scroll
@@ -174,20 +168,19 @@ function render({
     const numNodesBeforeStart = heightSums.filter(sum => sum < startOffset).length;
     const numNodesBeforeEnd = heightSums.filter(sum => sum < endOffset).length + 1;
 
-    // Choose a visual fix item. This will be the top partially onscreen node.
-    const visualFixItemIndex = heightSums.filter(sum => sum < scrollTop).length;
-    const visualFixItem = content[visualFixItemIndex];
-    const visualFixItemOffset = heightSums[visualFixItemIndex] - scrollTop;
-
-    previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
-    visualFixItem.node.style.background = "hotpink";
-
     const itemsBeforeStart = content.slice(0, numNodesBeforeStart);
     const itemsAfterEnd = content.slice(numNodesBeforeEnd);
+
+    // This is what we'll render
     const renderedItems = content.slice(
         numNodesBeforeStart,
         numNodesBeforeEnd
     );
+
+    // Choose a visual fix item. This will be the top partially onscreen node.
+    const visualFixItemIndex = heightSums.filter(sum => sum < scrollTop).length;
+    const visualFixItem = content[visualFixItemIndex];
+    const visualFixItemOffset = heightSums[visualFixItemIndex] - scrollTop;
 
     // What do we need to change?
     const changes = diff(
@@ -219,6 +212,9 @@ function render({
         { $activeElement: $previousActiveElement }
     );
 
+    previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
+    visualFixItem.node.style.background = "hotpink";
+
     // Translate & bumper!
     if (offsetFromTop !== previousOffsetFromTop) {
         $slice.style.transform = `translateY(${offsetFromTop}px)`;
@@ -242,7 +238,6 @@ function render({
         offsetFromTop,
         threshold,
         $activeElement,
-        scrollTop,
         visualFixItem,
         visualFixItemOffset
     };
