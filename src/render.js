@@ -1,12 +1,10 @@
 import diff from "./diff";
 import restoreFocus from "./restoreFocus";
+import { sum, leftSums } from "./sumUtils";
 
 const CONTAINER_CLASS = '__container';
 const SLICE_CLASS = '__slice';
 
-function sum(arr) {
-    return arr.reduce((a, b) => a + b, 0);
-}
 
 function makeGetHeight(cache) {
     return ({ id }) => cache[id];
@@ -19,18 +17,11 @@ function getBestScrollTop(totalHeight, viewportHeight, targetScrollTop) {
     );
 }
 
-function sumLeft(arr) {
-    return arr.reduce(
-        ({ total, acc }, v) => ({ total: total + v, acc: [...acc, total + v] }),
-        { total: 0, acc: [] }
-    ).acc;
-}
-
 function insertAfter($new, $ref) {
     $ref.parentNode.insertBefore($new, $ref.nextSibling);
 }
 
-function getElements($target, [$previousContainer, $previousSlice]) {
+function getOrCreateElements($target, [$previousContainer, $previousSlice]) {
     let $container = $previousContainer || $target.querySelector(`.${CONTAINER_CLASS}`);
 
     if (!$container) {
@@ -117,14 +108,15 @@ function render({
     threshold = previousThreshold || 400,
     debug = false
 }) {
-    console.log('-----');
     const [
         $container,
         $slice
-    ] = getElements($target, [$previousContainer, $previousSlice]);
+    ] = getOrCreateElements($target, [$previousContainer, $previousSlice]);
 
-    const currentScrollTop = $target.scrollTop;
-    console.log(currentScrollTop);
+    // Viewport height should be use clientHeight to avoid a measurement that includes
+    // the border, as this will throw off the calculation below;
+    const viewportHeight = previousViewportHeight || $target.clientHeight;
+    const viewportScrollTop = $target.scrollTop;
 
     // Measure the heights and track new items
     const [
@@ -136,23 +128,19 @@ function render({
 
     // Quick access to item heights
     const getHeight = makeGetHeight(heightCache);
-    const heightSums = sumLeft(content.map(getHeight));
-
-    // Viewport height should be use clientHeight to avoid a measurement that includes
-    // the border, as this will throw off the calculation below;
-    const viewportHeight = previousViewportHeight || $target.clientHeight;
+    const heightSums = leftSums(content.map(getHeight));
 
     // Should we restore focus around a particular element?
     let fixItem;
     let fixItemOffset;
     if (changedItems.length || newItems.length) {
         // If something changed then we might need to choose an item to lock onto
-        if (previousVisualFixItem && currentScrollTop > 1) {
+        if (previousVisualFixItem && viewportScrollTop > 1) {
             // We may be scrolled down the list some way, so we should lock onto that item
             fixItem = previousVisualFixItem;
             fixItemOffset = previousVisualFixItemOffset;
         } else {
-            // No previous item to lock onto and we're at the top, so we can just let this go
+            // No previous item to lock onto or we're at the top, so we can just let this go
         }
     } else if (pivotItem) {
         // If supplied we should lock onto the pivot
@@ -170,10 +158,8 @@ function render({
             return fixItemHeightSum - fixItemOffset;
         },
         // Otherwise we should just use the element's scroll position
-        () => currentScrollTop
+        () => viewportScrollTop
     );
-
-    console.log(targetScrollPosition);
 
     // Don't over-scroll
     const scrollTop = getBestScrollTop(
