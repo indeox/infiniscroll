@@ -106,7 +106,7 @@
         }
 
         setInterval(function () {
-          resize(~~(contentEnd * Math.random()));
+          resize(~~(Math.min(contentEnd, content.length) * Math.random()));
         }, 500);
     </script>
   </body>
