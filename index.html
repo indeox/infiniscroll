@@ -54,7 +54,8 @@
           }
         });
 
-        let contentEnd = ~~(content.length * 0.02);
+        let contentStart = ~~(content.length * 0.48);
+        let contentEnd = ~~(content.length * 0.52);
 
         var column = document.querySelector('.column');
 
@@ -66,7 +67,7 @@
         function go() {
           lastOutput = render(lastOutput, {
             $target: column,
-            content: content.slice(0, contentEnd),
+            content: content.slice(Math.max(contentStart, 0), contentEnd),
             debug: true
           })
         }
@@ -93,6 +94,11 @@
         }
 
         setInterval(function () {
+          contentStart--;
+          go();
+        }, 1015);
+
+        setInterval(function () {
           contentEnd++;
           go();
         }, 1000);
@@ -106,7 +112,7 @@
         }
 
         setInterval(function () {
-          resize(~~(Math.min(contentEnd, content.length) * Math.random()));
+          resize(~~(Math.min(contentEnd, content.length) * Math.random()) + Math.max(contentStart, 0));
         }, 500);
     </script>
   </body>

@@ -117,10 +117,14 @@ function render({
     threshold = previousThreshold || 400,
     debug = false
 }) {
+    console.log('-----');
     const [
         $container,
         $slice
     ] = getElements($target, [$previousContainer, $previousSlice]);
+
+    const currentScrollTop = $target.scrollTop;
+    console.log(currentScrollTop);
 
     // Measure the heights and track new items
     const [
@@ -139,8 +143,22 @@ function render({
     const viewportHeight = previousViewportHeight || $target.clientHeight;
 
     // Should we restore focus around a particular element?
-    const fixItem = (changedItems.length ? previousVisualFixItem : pivotItem);
-    const fixItemOffset = (changedItems.length ? previousVisualFixItemOffset : pivotOffset)
+    let fixItem;
+    let fixItemOffset;
+    if (changedItems.length || newItems.length) {
+        // If something changed then we might need to choose an item to lock onto
+        if (previousVisualFixItem && currentScrollTop > 1) {
+            // We may be scrolled down the list some way, so we should lock onto that item
+            fixItem = previousVisualFixItem;
+            fixItemOffset = previousVisualFixItemOffset;
+        } else {
+            // No previous item to lock onto and we're at the top, so we can just let this go
+        }
+    } else if (pivotItem) {
+        // If supplied we should lock onto the pivot
+        fixItem = pivotItem;
+        fixItemOffset = pivotOffset;
+    }
 
     const targetScrollPosition = iff(
         fixItem,
@@ -152,8 +170,10 @@ function render({
             return fixItemHeightSum - fixItemOffset;
         },
         // Otherwise we should just use the element's scroll position
-        () => $target.scrollTop
+        () => currentScrollTop
     );
+
+    console.log(targetScrollPosition);
 
     // Don't over-scroll
     const scrollTop = getBestScrollTop(
