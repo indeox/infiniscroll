@@ -114,7 +114,8 @@ function render({
     content = [],
     pivotItem,
     pivotOffset = 0,
-    threshold = previousThreshold || 400
+    threshold = previousThreshold || 400,
+    debug = false
 }) {
     const [
         $container,
@@ -212,8 +213,10 @@ function render({
         { $activeElement: $previousActiveElement }
     );
 
-    previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
-    visualFixItem.node.style.background = "hotpink";
+    if (debug) {
+        previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
+        visualFixItem.node.style.background = "hotpink";
+    }
 
     // Translate & bumper!
     if (offsetFromTop !== previousOffsetFromTop) {
