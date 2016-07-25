@@ -20,12 +20,12 @@ fixture.innerHTML = `
       outline: 1px solid red;
     }
 
-    .container {
+    .__container {
       background: rgba(0,255,0,.1);
       outline: 1px solid green;
     }
 
-    .slice {
+    .__slice {
       background: rgba(0,0,255,.1);
       outline: 1px solid blue;
     }
@@ -48,23 +48,12 @@ const content = Array(NUM_OF_ITEMS).fill().map((_, index) => {
 test('basic render test', (t) => {
   const output = render({}, {
     $target: columnEl,
-    content: content
+    content: content,
+    debug: true
   });
 
   t.equal(output.content.length, 20);
-  t.equal(columnEl.querySelectorAll('.item').length, 3);
-
-  t.end();
-});
-
-test('basic render test with a larger viewport', (t) => {
-  const output = render({}, {
-    $target: columnEl,
-    content: content
-  });
-
-  t.equal(output.content.length, 20);
-  t.equal(columnEl.querySelectorAll('.item').length, 3);
+  t.equal(columnEl.querySelectorAll('.item').length, 4);
 
   t.end();
 });
@@ -73,41 +62,29 @@ test('scroll to pivot test', (t) => {
   const output = render({}, {
     $target: columnEl,
     content: content,
-    pivot: content[4]
+    pivotItem: content[4],
+    debug: true
   });
 
   t.equal(output.content.length, 20);
   t.equal(columnEl.scrollTop, 576);
-  t.equal(columnEl.querySelectorAll('.item').length, 4);
+  t.equal(columnEl.querySelectorAll('.item').length, 6);
 
   t.end();
 });
 
 test('scroll to pivot with offset test', (t) => {
-  const output = render({
+  const output = render({}, {
     $target: columnEl,
     content: content,
-    pivot: content[4],
-    offset: 10
+    pivotItem: content[4],
+    pivotOffset: 10,
+    debug: true
   });
 
   t.equal(output.content.length, 20);
   t.equal(columnEl.scrollTop, 566);
-  t.equal(columnEl.querySelectorAll('.item').length, 4);
-
-  t.end();
-});
-
-test.only('scroll to offset test', (t) => {
-  const output = render({}, {
-    $target: columnEl,
-    content: content,
-    offset: -10
-  });
-
-  t.equal(output.content.length, 20);
-  t.equal(columnEl.scrollTop, 10);
-  t.equal(columnEl.querySelectorAll('.item').length, 4);
+  t.equal(columnEl.querySelectorAll('.item').length, 6);
 
   t.end();
 });

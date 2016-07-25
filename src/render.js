@@ -99,13 +99,14 @@ function render({
     threshold: previousThreshold,
     $activeElement: $previousActiveElement,
     visualFixItem: previousVisualFixItem,
-    visualFixItemOffset: previousVisualFixItemOffset
+    visualFixItemOffset: previousVisualFixItemOffset,
+    pivotItem: previousPivotItem
 }, {
     $target,
     content = [],
     pivotItem,
     pivotOffset = 0,
-    threshold = previousThreshold || 400,
+    threshold = previousThreshold || 200,
     debug = false
 }) {
     const [
@@ -133,7 +134,11 @@ function render({
     // Should we restore focus around a particular element?
     let fixItem;
     let fixItemOffset;
-    if (changedItems.length || newItems.length) {
+    if (pivotItem) {
+        // If supplied we should lock onto the pivot
+        fixItem = pivotItem;
+        fixItemOffset = pivotOffset + getHeight(pivotItem);
+    } else if (changedItems.length || newItems.length) {
         // If something changed then we might need to choose an item to lock onto
         if (previousVisualFixItem && viewportScrollTop > 1) {
             // We may be scrolled down the list some way, so we should lock onto that item
@@ -142,10 +147,6 @@ function render({
         } else {
             // No previous item to lock onto or we're at the top, so we can just let this go
         }
-    } else if (pivotItem) {
-        // If supplied we should lock onto the pivot
-        fixItem = pivotItem;
-        fixItemOffset = pivotOffset;
     }
 
     const targetScrollPosition = iff(
@@ -222,6 +223,8 @@ function render({
     if (debug) {
         previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
         visualFixItem.node.style.background = "hotpink";
+        previousPivotItem && (previousPivotItem.node.style.background = "");
+        pivotItem && (pivotItem.node.style.background = "honeydew");
     }
 
     // Translate & bumper!
@@ -248,7 +251,8 @@ function render({
         threshold,
         $activeElement,
         visualFixItem,
-        visualFixItemOffset
+        visualFixItemOffset,
+        pivotItem
     };
 }
 
