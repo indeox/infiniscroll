@@ -1,5 +1,6 @@
 const test = require('tape');
 const render = require('../render');
+import * as rect from "../rect";
 
 // Build test content
 const NUM_OF_ITEMS = 20;
@@ -69,6 +70,7 @@ test('scroll to pivot test', (t) => {
   t.equal(output.content.length, 20);
   t.equal(columnEl.scrollTop, 576);
   t.equal(columnEl.querySelectorAll('.item').length, 6);
+  t.ok(rect.isVisible(output.pivotItem.node));
 
   t.end();
 });
@@ -85,6 +87,7 @@ test('scroll to pivot with offset test', (t) => {
   t.equal(output.content.length, 20);
   t.equal(columnEl.scrollTop, 566);
   t.equal(columnEl.querySelectorAll('.item').length, 6);
+  t.ok(rect.isVisible(output.pivotItem.node));
 
   t.end();
 });
