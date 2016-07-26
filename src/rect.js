@@ -22,8 +22,8 @@ export const parents = node =>
         []);
 
 export const isCSSVisible = node => {
-    const style = window.getComputedStyle(node);
-    return (style.display !== 'none' && style.visibility !== 'hidden');
+    const { display, visibility } = window.getComputedStyle(node);
+    return (display !== 'none' && visibility !== 'hidden');
 };
 
 /**
@@ -32,10 +32,16 @@ export const isCSSVisible = node => {
  * of the node and its parents to figure out if it's on screen.
  */
 export const isVisible = target => {
+    // Walk up the DOM to find all the nodes that might affect visibility
     const nodeAndParents = [target, ...parents(target)].filter(isRectAvailable);
+    // Using Array#every should be efficient becuase it will exit early
     const allAreCSSVisible = nodeAndParents.every(isCSSVisible);
     if (!allAreCSSVisible) return false;
+    // The reduce is seeded by the first value automatically, and can happen
+    // in any order
     const intersection = nodeAndParents.map(getRect).reduce(intersect);
+    // The *area* of the intersection is the important bit. If there's even one
+    // pixel visible, this will be true.
     return area(intersection) > 0;
 };
 
