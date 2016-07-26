@@ -16,7 +16,7 @@ fixture.innerHTML = `
   <style>
     .column {
       width: 200px;
-      height: 300px;
+      height: 350px;
       overflow: auto;
       outline: 1px solid red;
     }
