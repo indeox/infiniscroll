@@ -105,6 +105,7 @@
 
         function resize(i) {
           var item = content[i];
+          if (!item) return console.log(`item ${i} does not exist`);
           item.node.style.height = `${~~(400 * Math.random() + 100)}px`;
           item.hasChanged = true;
           go();
