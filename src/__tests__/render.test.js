@@ -1,6 +1,6 @@
 const test = require('tape');
 const render = require('../render');
-import * as rect from "../rect";
+import { isVisible } from "../rect";
 
 // Build test content
 const NUM_OF_ITEMS = 20;
@@ -53,8 +53,8 @@ test('basic render test', (t) => {
     debug: true
   });
 
-  t.equal(output.content.length, 20);
-  t.equal(columnEl.querySelectorAll('.item').length, 4);
+  t.ok(isVisible(content[0].node));
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 2);
 
   t.end();
 });
@@ -67,10 +67,8 @@ test('scroll to pivot test', (t) => {
     debug: true
   });
 
-  t.equal(output.content.length, 20);
-  t.equal(columnEl.scrollTop, 576);
-  t.equal(columnEl.querySelectorAll('.item').length, 6);
-  t.ok(rect.isVisible(output.pivotItem.node));
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 2);
+  t.ok(isVisible(output.pivotItem.node));
 
   t.end();
 });
@@ -84,10 +82,8 @@ test('scroll to pivot with offset test', (t) => {
     debug: true
   });
 
-  t.equal(output.content.length, 20);
-  t.equal(columnEl.scrollTop, 566);
-  t.equal(columnEl.querySelectorAll('.item').length, 6);
-  t.ok(rect.isVisible(output.pivotItem.node));
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 2);
+  t.ok(isVisible(output.pivotItem.node));
 
   t.end();
 });
