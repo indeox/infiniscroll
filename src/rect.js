@@ -1,4 +1,8 @@
-export const area = ({ top, right, bottom, left }) => Math.max((bottom - top) * (right - left), 0);
+export const area = ({ top, right, bottom, left }) =>
+    Math.max(
+        Math.max(bottom - top, 0) * Math.max(right - left, 0),
+        0
+    );
 
 export const intersect = (a, b) => ({
     top: Math.max(a.top, b.top),
