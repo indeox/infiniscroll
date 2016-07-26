@@ -140,6 +140,7 @@ function render({
         fixItemOffset = pivotOffset + getHeight(pivotItem);
     } else if (changedItems.length || newItems.length) {
         // If something changed then we might need to choose an item to lock onto
+        // TODO why is this 1?
         if (previousVisualFixItem && viewportScrollTop > 1) {
             // We may be scrolled down the list some way, so we should lock onto that item
             fixItem = previousVisualFixItem;
@@ -193,6 +194,7 @@ function render({
     // What do we need to change?
     const changes = diff(
         previousRenderedItems
+            // TODO if this were an immutable list, would this work?
             .filter(item => !item.hasChanged)
             .concat(newItems)
             .concat(changedItems),
@@ -200,6 +202,7 @@ function render({
     );
 
     // How much space do we need to replace at the top?
+    // TODO this can use heightSums
     const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
 
     // Make the changes!
@@ -227,7 +230,7 @@ function render({
         pivotItem && (pivotItem.node.style.background = "honeydew");
     }
 
-    // Translate & bumper!
+    // Translate & container modifications
     if (offsetFromTop !== previousOffsetFromTop) {
         $slice.style.transform = `translateY(${offsetFromTop}px)`;
     }
