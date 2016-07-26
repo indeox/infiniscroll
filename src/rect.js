@@ -21,6 +21,11 @@ export const parents = node =>
         [node.parentNode].concat(parents(node.parentNode)) :
         []);
 
+export const isCSSVisible = node => {
+    const style = window.getComputedStyle(node);
+    return (style.display !== 'none' && style.visibility !== 'hidden');
+};
+
 /**
  * Calculate if an element is visible on the screen.
  * This uses the area of the intersection of the bounding client rectangles
@@ -28,6 +33,8 @@ export const parents = node =>
  */
 export const isVisible = target => {
     const nodeAndParents = [target, ...parents(target)].filter(isRectAvailable);
+    const allAreCSSVisible = nodeAndParents.every(isCSSVisible);
+    if (!allAreCSSVisible) return false;
     const intersection = nodeAndParents.map(getRect).reduce(intersect);
     return area(intersection) > 0;
 };
