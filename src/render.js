@@ -140,7 +140,7 @@ function render({
         fixItemOffset = pivotOffset + getHeight(pivotItem);
     } else if (changedItems.length || newItems.length) {
         // If something changed then we might need to choose an item to lock onto
-        // TODO why is this 1?
+        // This is 1 to give the user 1 pixel of leeway in their scrolled-to-topness.
         if (previousVisualFixItem && viewportScrollTop > 1) {
             // We may be scrolled down the list some way, so we should lock onto that item
             fixItem = previousVisualFixItem;
