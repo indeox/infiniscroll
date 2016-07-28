@@ -167,7 +167,8 @@ function render({
     const scrollTop = getBestScrollTop(
         totalHeight,
         viewportHeight,
-        targetScrollPosition
+        // Rounding here fixes scroll offset rounding errors
+        Math.round(targetScrollPosition)
     );
 
     // What to render?
