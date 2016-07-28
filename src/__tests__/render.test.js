@@ -54,7 +54,7 @@ test('basic render test', (t) => {
   });
 
   t.ok(isVisible(content[0].node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 2);
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
 
   t.end();
 });
@@ -68,7 +68,7 @@ test('scroll to pivot test', (t) => {
   });
 
   t.ok(isVisible(output.pivotItem.node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 2);
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
 
   t.end();
 });
@@ -83,7 +83,7 @@ test('scroll to pivot with offset test', (t) => {
   });
 
   t.ok(isVisible(output.pivotItem.node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 2);
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
 
   t.end();
 });
