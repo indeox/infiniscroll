@@ -202,8 +202,7 @@ function render({
     );
 
     // How much space do we need to replace at the top?
-    // TODO this can use heightSums
-    const offsetFromTop = sum(itemsBeforeStart.map(getHeight));
+    const offsetFromTop = heightSums[itemsBeforeStart.length - 1] || 0;
 
     // Make the changes!
     const [
