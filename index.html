@@ -115,6 +115,15 @@
         setInterval(function () {
           resize(~~(Math.min(contentEnd, content.length) * Math.random()) + Math.max(contentStart, 0));
         }, 500);
+
+        function animateScrollTo($e, y, duration, start = Date.now()) {
+          requestAnimationFrame(() => {
+            var t = (Date.now() - start) / duration;
+            if (t >= 1) return;
+            $e.scrollTo(0, $e.scrollTop + (y - $e.scrollTop) * (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t));
+            animateScrollTo($e, y, duration, start)
+          });
+        }
     </script>
   </body>
 </html>
