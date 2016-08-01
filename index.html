@@ -68,7 +68,11 @@
           lastOutput = render(lastOutput, {
             $target: column,
             content: content.slice(Math.max(contentStart, 0), contentEnd),
-            debug: true
+            onBottomProximity: _.throttle(function () {
+              contentEnd++;
+            }, 100),
+            proximityThreshold: 10,
+            debug: false
           })
         }
 

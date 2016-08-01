@@ -101,6 +101,8 @@ function render({
     pivotItem,
     pivotOffset = 0,
     threshold = previousThreshold || 200,
+    proximityThreshold = 3,
+    onBottomProximity = () => {},
     debug = false
 }) {
     const [
@@ -234,6 +236,11 @@ function render({
 
     // Always set the scrollTop
     $target.scrollTop = scrollTop;
+
+    // Interaction callbacks
+    if (content.length - visualFixItemIndex <= proximityThreshold) {
+        onBottomProximity();
+    }
 
     return {
         $target,

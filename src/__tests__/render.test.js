@@ -87,3 +87,22 @@ test('scroll to pivot with offset test', (t) => {
 
   t.end();
 });
+
+test('bottom proximity callback', (t) => {
+  t.plan(3);
+
+  const output = render({}, {
+    $target: columnEl,
+    content: content,
+    pivotItem: content[18],
+    debug: true,
+    onBottomProximity: () => {
+      t.pass('proximity callback called');
+    }
+  });
+
+  t.ok(isVisible(output.pivotItem.node));
+  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
+
+  t.timeoutAfter(100);
+});
