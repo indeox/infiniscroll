@@ -1,10 +1,10 @@
+import iff from "if-expression";
 import diff from "./diff";
 import restoreFocus from "./restoreFocus";
 import { sum, leftSums } from "./sumUtils";
 
 const CONTAINER_CLASS = '__container';
 const SLICE_CLASS = '__slice';
-
 
 function makeGetHeight(cache) {
     return ({ id }) => cache[id];
@@ -61,12 +61,6 @@ function calculateHeights(content, $slice, heightCache = {}) {
     });
     return [totalHeight, heightCache, newItems, changedItems];
 }
-
-const iff = (
-    predicate,
-    left = () => {},
-    right = () => {}
-) => (predicate ? left() : right());
 
 const opToFn = {
     // Remove
