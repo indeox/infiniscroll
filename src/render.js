@@ -103,6 +103,7 @@ function render({
     threshold = previousThreshold || 200,
     proximityThreshold = 3,
     onBottomProximity = () => {},
+    onScroll = () => {},
     debug = false
 }) {
     const [
@@ -236,6 +237,10 @@ function render({
 
     // Always set the scrollTop
     $target.scrollTop = scrollTop;
+
+    onScroll({
+        scrollTop: offsetFromTop + scrollTop
+    });
 
     // Interaction callbacks
     if (content.length - visualFixItemIndex <= proximityThreshold) {

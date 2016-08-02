@@ -71,6 +71,9 @@
             onBottomProximity: _.throttle(function () {
               contentEnd++;
             }, 100),
+            onScroll: function (e) {
+              // console.log(e);
+            },
             proximityThreshold: 10,
             debug: false
           })
