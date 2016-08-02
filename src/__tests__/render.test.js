@@ -47,12 +47,17 @@ const content = Array(NUM_OF_ITEMS).fill().map((_, index) => {
   }
 });
 
+const defaultArgs = t => ({
+  $target: columnEl,
+  content: content,
+  debug: true,
+  onBottomProximity: () => {
+    t.fail('proximity callback called');
+  }
+});
+
 test('basic render test', (t) => {
-  const output = render({}, {
-    $target: columnEl,
-    content: content,
-    debug: true
-  });
+  const output = render({}, defaultArgs(t));
 
   t.ok(isVisible(content[0].node));
   t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
@@ -62,10 +67,8 @@ test('basic render test', (t) => {
 
 test('scroll to pivot test', (t) => {
   const output = render({}, {
-    $target: columnEl,
-    content: content,
-    pivotItem: content[4],
-    debug: true
+    ...defaultArgs(t),
+    pivotItem: content[4]
   });
 
   t.ok(isVisible(output.pivotItem.node));
@@ -76,14 +79,9 @@ test('scroll to pivot test', (t) => {
 
 test('scroll to pivot with offset test', (t) => {
   const output = render({}, {
-    $target: columnEl,
-    content: content,
+    ...defaultArgs(t),
     pivotItem: content[4],
-    pivotOffset: 10,
-    debug: true,
-    onBottomProximity: () => {
-      t.fail('proximity callback called');
-    }
+    pivotOffset: 10
   });
 
   t.ok(isVisible(output.pivotItem.node));
@@ -96,10 +94,8 @@ test('bottom proximity callback', (t) => {
   t.plan(3);
 
   const output = render({}, {
-    $target: columnEl,
-    content: content,
+    ...defaultArgs(t),
     pivotItem: content[18],
-    debug: true,
     onBottomProximity: () => {
       t.pass('proximity callback called');
     }
