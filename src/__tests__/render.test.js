@@ -1,15 +1,9 @@
-const test = require('tape');
-const render = require('../render');
+import test from 'tape';
+import render from '../render';
 import { isVisible } from "../rect";
 
 // Build test content
 const NUM_OF_ITEMS = 20;
-const sampleText = `
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-  Donec vitae pharetra tellus. Nam nec dapibus nulla. Nunc
-  id purus quis erat gravida dictum a vitae purus. Quisque
-  luctus placerat nibh in bibendum.
-`;
 
 const fixture = document.createElement('div');
 fixture.innerHTML = `
@@ -38,7 +32,14 @@ document.body.appendChild(fixture);
 const columnEl = document.querySelector('.column');
 const content = Array(NUM_OF_ITEMS).fill().map((_, index) => {
   let node = document.createElement('div');
-  node.innerHTML = `<div class="item">${sampleText}</div>`;
+  node.innerHTML = `
+    <div class="item">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      Donec vitae pharetra tellus. Nam nec dapibus nulla. Nunc
+      id purus quis erat gravida dictum a vitae purus. Quisque
+      luctus placerat nibh in bibendum.
+    </div>
+  `.trim();
 
   return {
     id: index,
@@ -79,7 +80,10 @@ test('scroll to pivot with offset test', (t) => {
     content: content,
     pivotItem: content[4],
     pivotOffset: 10,
-    debug: true
+    debug: true,
+    onBottomProximity: () => {
+      t.fail('proximity callback called');
+    }
   });
 
   t.ok(isVisible(output.pivotItem.node));
