@@ -2,85 +2,15 @@ import iff from "if-expression";
 import diff from "./diff";
 import restoreFocus from "./restoreFocus";
 import { sum, leftSums } from "./sumUtils";
+import {
+    insertAfter,
+    opToFn,
+    calculateHeights,
+    getOrCreateElements,
+    getBestScrollTop
+} from "./domUtils";
 
-const CONTAINER_CLASS = '__container';
-const SLICE_CLASS = '__slice';
-
-function makeGetHeight(cache) {
-    return ({ id }) => cache[id];
-}
-
-function getBestScrollTop(totalHeight, viewportHeight, targetScrollTop) {
-    return Math.min(
-        targetScrollTop,
-        Math.max(0, totalHeight - viewportHeight)
-    );
-}
-
-function insertAfter($new, $ref) {
-    $ref.parentNode.insertBefore($new, $ref.nextSibling);
-}
-
-function getOrCreateElements($target, [$previousContainer, $previousSlice]) {
-    let $container = $previousContainer || $target.querySelector(`.${CONTAINER_CLASS}`);
-
-    if (!$container) {
-        $container = document.createElement('div');
-        $container.setAttribute('class', CONTAINER_CLASS);
-        $target.appendChild($container);
-    }
-
-    let $slice = $previousSlice || $container.querySelector(`.${SLICE_CLASS}`);
-
-    if (!$slice) {
-        $slice = document.createElement('div');
-        $slice.setAttribute('class', SLICE_CLASS);
-        $container.appendChild($slice);
-    }
-
-    return [$container, $slice];
-}
-
-function calculateHeights(content, $slice, heightCache = {}) {
-    var totalHeight = 0;
-    var newItems = [];
-    var changedItems = [];
-    content.forEach((item, index) => {
-        const {id, node, hasChanged} = item;
-        if (!heightCache.hasOwnProperty(id)) {
-            $slice.appendChild(node);
-            heightCache[id] = node.offsetHeight;
-            newItems.push(item);
-        }
-        if (hasChanged) {
-            $slice.appendChild(node);
-            heightCache[id] = node.offsetHeight;
-            changedItems.push(item);
-        }
-        totalHeight += heightCache[id];
-    });
-    return [totalHeight, heightCache, newItems, changedItems];
-}
-
-const opToFn = {
-    // Remove
-    '-': ($parent, $node) => $parent.removeChild($node),
-    // Paste (has moved from somewhere else)
-    'p': (...args) => {
-        opToFn['+'](...args);
-    },
-    '=': () => {},
-    'x': () => {},
-    '+': ($parent, $node, $lastNode) => {
-        if ($lastNode && $lastNode.parentNode) {
-            insertAfter($node, $lastNode);
-        } else {
-            $parent.insertBefore($node, $parent.firstChild);
-        }
-    }
-};
-
-function render({
+module.exports = function render({
     // These values act as memory for this function. They should all be optional
     // and be present on the output object.
     $slice: $previousSlice,
@@ -125,27 +55,20 @@ function render({
     ] = calculateHeights(content, $slice, previousHeightCache);
 
     // Quick access to item heights
-    const getHeight = makeGetHeight(heightCache);
+    const getHeight = ({ id }) => heightCache[id];
     const heightSums = leftSums(content.map(getHeight));
 
     // Should we restore focus around a particular element?
-    let fixItem;
-    let fixItemOffset;
-    if (pivotItem) {
+    const [fixItem, fixItemOffset] = iff(
         // If supplied we should lock onto the pivot
-        fixItem = pivotItem;
-        fixItemOffset = pivotOffset + getHeight(pivotItem);
-    } else if (changedItems.length || newItems.length) {
-         if (previousVisualFixItem) {
-            // If something changed then we might need to choose an item to lock onto
-            // This is 1 to give the user 1 pixel of leeway in their scrolled-to-topness.
-            // We may be scrolled down the list some way, so we should lock onto that item
-            fixItem = previousVisualFixItem;
-            fixItemOffset = previousVisualFixItemOffset;
-        } else {
-            // No previous item to lock onto or we're at the top, so we can just let this go
-        }
-    }
+        pivotItem,
+        () => [pivotItem, pivotOffset + getHeight(pivotItem)],
+        // If something changed then we might need to lock onto a previous item
+        (changedItems.length || newItems.length) && previousVisualFixItem,
+        () => [previousVisualFixItem, previousVisualFixItemOffset],
+        // Nothing to lock on to
+        () => []
+    );
 
     const targetScrollPosition = iff(
         fixItem,
@@ -238,11 +161,11 @@ function render({
     // Always set the scrollTop
     $target.scrollTop = scrollTop;
 
+    // Interaction callbacks
     onScroll({
         scrollTop: offsetFromTop + scrollTop
     });
 
-    // Interaction callbacks
     if (content.length - visualFixItemIndex <= proximityThreshold) {
         onBottomProximity();
     }
@@ -264,5 +187,3 @@ function render({
         pivotItem
     };
 }
-
-module.exports = render;
