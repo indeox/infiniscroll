@@ -59,9 +59,7 @@
 
         var column = document.querySelector('.column');
 
-        column.addEventListener('scroll', _.throttle(function () {
-          go();
-        }, 10), true);
+        column.addEventListener('scroll', _.throttle(go, 10), true);
 
         var lastOutput = {};
         function go() {
