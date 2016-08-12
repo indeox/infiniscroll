@@ -98,16 +98,6 @@
           go()
         }
 
-        setInterval(function () {
-          contentStart--;
-          go();
-        }, 1015);
-
-        setInterval(function () {
-          contentEnd++;
-          go();
-        }, 1000);
-
         function resize(i) {
           var item = content[i];
           if (!item) return console.log(`item ${i} does not exist`);
@@ -116,10 +106,6 @@
           go();
           item.hasChanged = false;
         }
-
-        setInterval(function () {
-          resize(~~(Math.min(contentEnd, content.length) * Math.random()) + Math.max(contentStart, 0));
-        }, 500);
 
         function animateScrollTo($e, y, duration, start = Date.now()) {
           requestAnimationFrame(() => {
