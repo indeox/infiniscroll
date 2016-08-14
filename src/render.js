@@ -22,8 +22,6 @@ module.exports = function render({
     offsetFromTop: previousOffsetFromTop,
     threshold: previousThreshold,
     $activeElement: $previousActiveElement,
-    visualFixItem: previousVisualFixItem,
-    visualFixItemOffset: previousVisualFixItemOffset,
     pivotItem: previousPivotItem
 }, {
     $target,
@@ -58,14 +56,10 @@ module.exports = function render({
     const getHeight = ({ id }) => heightCache[id];
     const heightSums = leftSums(content.map(getHeight));
 
-    // Should we restore focus around a particular element?
+    // Should we force scroll to a particular element?
     const [fixItem, fixItemOffset] = iff(
-        // If supplied we should lock onto the pivot
         pivotItem,
         () => [pivotItem, pivotOffset + getHeight(pivotItem)],
-        // If something changed then we might need to lock onto a previous item
-        (changedItems.length || newItems.length) && previousVisualFixItem,
-        () => [previousVisualFixItem, previousVisualFixItemOffset],
         // Nothing to lock on to
         () => []
     );
@@ -107,11 +101,6 @@ module.exports = function render({
         numNodesBeforeEnd
     );
 
-    // Choose a visual fix item. This will be the top partially onscreen node.
-    const visualFixItemIndex = heightSums.filter(sum => sum < scrollTop).length;
-    const visualFixItem = content[visualFixItemIndex];
-    const visualFixItemOffset = heightSums[visualFixItemIndex] - scrollTop;
-
     // What do we need to change?
     const changes = diff(
         previousRenderedItems
@@ -144,8 +133,6 @@ module.exports = function render({
     );
 
     if (debug) {
-        previousVisualFixItem && (previousVisualFixItem.node.style.background = "");
-        visualFixItem.node.style.background = "hotpink";
         previousPivotItem && (previousPivotItem.node.style.background = "");
         pivotItem && (pivotItem.node.style.background = "honeydew");
     }
@@ -158,15 +145,18 @@ module.exports = function render({
         $container.style.height = `${totalHeight}px`;
     }
 
-    // Always set the scrollTop
-    $target.scrollTop = scrollTop;
+    if (fixItem) {
+        $target.scrollTop = scrollTop;
+    }
 
     // Interaction callbacks
     onScroll({
         scrollTop: offsetFromTop + scrollTop
     });
 
-    if (content.length - visualFixItemIndex <= proximityThreshold) {
+    const numNodesAfterEnd = Math.max(0, content.length - numNodesBeforeEnd);
+
+    if (numNodesAfterEnd <= proximityThreshold) {
         onBottomProximity();
     }
 
@@ -182,8 +172,6 @@ module.exports = function render({
         offsetFromTop,
         threshold,
         $activeElement,
-        visualFixItem,
-        visualFixItemOffset,
         pivotItem
     };
 }
