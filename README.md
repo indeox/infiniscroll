@@ -55,9 +55,11 @@ To accomodate for this, we will:
 - choose a new slice based on our new new height knowledge
 - schedule another list pass
 
-However, we cannot render the whole list and we cannot render new items if they appear at the top of the list while we are scrolled down as there may be hundreds.
+However, this is made more difficult dues to another constraint:
 
-To compensate, we'll adjust the user's scroll position if new, offscreen items arrive.
+> We cannot ever render the whole list and we cannot render new items if they appear at the top of the list while we are scrolled down as there may be hundreds.
+
+To compensate, we'll adjust the user's scroll position if new, offscreen items arrive using an assumed height, and adjust when we know the real height.
 
 For example, we have a list of 10 items with real heights, and we assume a height of 10px for new items:
 
