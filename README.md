@@ -211,3 +211,13 @@ Therefore the net scroll change is -4px (4px up) to 38px:
 | 40px buffer
 |
 ```
+
+## Focus
+
+The scroller should be agnostic of the content inside it, which includes form elements and other interactive UI.
+
+Browser behaviour dictates that, when an element is removed from the DOM, it loses focus. This is a problem becuase a list item does not have to go far off the screen to be removed, but the user's expectation is that the focus will remain.
+
+In this case the answer to the question, *"what would the browser do?"* is that it would make sure focus was not lost.
+
+To make this happen we must restore focus to any previously focused element that we removed from the DOM.
