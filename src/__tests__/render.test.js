@@ -1,5 +1,6 @@
 import test from 'tape';
 import render from '../render';
+import { getRect } from '../rect';
 import { isVisible } from "../rect";
 
 import page from './page.html';
@@ -46,6 +47,19 @@ test('only a few nodes are rendered', t => {
   t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length > 1);
   t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
   t.ok([...$container.querySelectorAll('.item')].length < 5);
+  t.end();
+});
+
+test('the scollable region is the full height of the list', t => {
+  const content = makeContent(20);
+  const [ $container ] = setup();
+  const output = render({}, {
+    $container,
+    content,
+    defaultHeight: 100
+  });
+  const expectedTotalHeight = 100 * content.length;
+  t.equal($container.scrollHeight, expectedTotalHeight);
   t.end();
 });
 
