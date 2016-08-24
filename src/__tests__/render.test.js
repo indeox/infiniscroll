@@ -35,4 +35,18 @@ test('basic render', t => {
   t.end();
 });
 
+test('only a few nodes are rendered', t => {
+  const content = makeContent(20);
+  const [ $container ] = setup();
+  const output = render({}, {
+    $container,
+    content
+  });
+  t.ok(isVisible(content[0].node));
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length > 1);
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
+  t.ok([...$container.querySelectorAll('.item')].length < 5);
+  t.end();
+});
+
 
