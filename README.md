@@ -188,7 +188,7 @@ If the user scrolls 9px up, we would take this into account by rendering node `c
 
 However, if node `c` were re-rendered and found to be 15px, we would have to take this into account:
 
-- the buffer is still 20px as nodes `a` and `b` are 25px in total
+- the buffer is still 25px as nodes `a` and `b` are 25px in total
 - the change in node height will have led to a 5px push-down of previously rendered, onscreen content (`d`, `e` and `f`)
 - the user has scrolled up 9px
 
