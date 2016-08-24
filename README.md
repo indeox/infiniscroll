@@ -80,24 +80,24 @@ The user is scrolled 43px down with a 30px viewport, so the list is rendered:
 
 ```
 |
-| 35px buffer
+| 35px
 |
 [ d: 10px ] <-- 43px
 [ e: 15px ]
 [ f: 20px ] <-- 73px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
 If a new item is added to the top of the list, we assume a height of 10px.
 
-Normally, we would now adjust the buffer to 45px and the user's scroll position by 10px, to 53px:
+Normally, we would now adjust the spacing to 45px and the user's scroll position by 10px, to 53px:
 
 ```
 |
-| 45px buffer
+| 45px
 |
 |
 [ d: 10px ] <-- 53px
@@ -105,7 +105,7 @@ Normally, we would now adjust the buffer to 45px and the user's scroll position 
 [ f: 20px ] <-- 83px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
@@ -115,14 +115,14 @@ For example, if item `d` resizes to 8px, we will fix the offset from item `e` (a
 
 ```
 |
-| 35px buffer
+| 35px
 |
 [ d:  8px ] <-- 41px
 [ e: 15px ]
 [ f: 20px ] <-- 71px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
@@ -135,7 +135,7 @@ This leads to an adjusted scroll position of 8px:
 
 ```
 |
-| 45px buffer
+| 45px
 |
 |
 [ d:  8px ] <-- 51px
@@ -143,7 +143,7 @@ This leads to an adjusted scroll position of 8px:
 [ f: 20px ] <-- 81px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
@@ -160,21 +160,21 @@ For example, give the same initial starting place as above:
 
 ```
 |
-| 35px buffer
+| 35px
 |
 [ d: 10px ] <-- 43px
 [ e: 15px ]
 [ f: 20px ] <-- 73px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
 If the user scrolls 9px up, we would take this into account by rendering node `c` which is 10px high:
 
 ```
-| 25px buffer
+| 25px
 |
 [ c: 10px ] <-- 34px
 [ d: 10px ]
@@ -182,13 +182,13 @@ If the user scrolls 9px up, we would take this into account by rendering node `c
 [ f: 20px ] <-- 64px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
 However, if node `c` were re-rendered and found to be 15px, we would have to take this into account:
 
-- the buffer is still 25px as nodes `a` and `b` are 25px in total
+- the spacing is still 25px as nodes `a` and `b` are 25px in total
 - the change in node height will have led to a 5px push-down of previously rendered, onscreen content (`d`, `e` and `f`)
 - the user has scrolled up 9px
 
@@ -202,7 +202,7 @@ To take this into account, we take the 9px off the previous scroll postion and a
 Therefore the net scroll change is -4px (4px up) to 38px:
 
 ```
-| 25px buffer
+| 25px
 |
 [ c: 15px ] <-- 38px
 [ d: 10px ]
@@ -210,7 +210,7 @@ Therefore the net scroll change is -4px (4px up) to 38px:
 [ f: 20px ] <-- 68px
 |
 |
-| 40px buffer
+| 40px
 |
 ```
 
