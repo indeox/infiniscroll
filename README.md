@@ -216,9 +216,9 @@ Therefore the net scroll change is -4px (4px up) to 38px:
 
 ## Reordering
 
-Another challenging scenrio occurs when the list order changes. It *should* be catered for the by on-screen height changing code as we will fix to an onscreen item.
+List reordering *should* be catered for the by on-screen height changing code as we will fix to an onscreen item. This needs further work.
 
-## Anchor removal
+## Removal
 
 Items being removed is not problem unless the item is onscreen. In this scenario, we will choose the best available candidate *down* the list from the first onscreen, so that the offset from the start of the list is maintained.
 
