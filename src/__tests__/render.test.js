@@ -1,108 +1,66 @@
 import test from 'tape';
 import render from '../render';
+import { getRect } from '../rect';
 import { isVisible } from "../rect";
 
-// Build test content
-const NUM_OF_ITEMS = 20;
+import page from './page.html';
+import item from './item.html';
 
-const fixture = document.createElement('div');
-fixture.innerHTML = `
-  <style>
-    .column {
-      width: 200px;
-      height: 350px;
-      overflow: auto;
-      outline: 1px solid red;
-    }
+function renderHtml(html) {
+  const node = document.createElement('div');
+  node.innerHTML = html;
+  return node.firstChild;
+}
 
-    .__container {
-      background: rgba(0,255,0,.1);
-      outline: 1px solid green;
-    }
+function makeContent(size) {
+  return Array(size).fill().map((_, i) => ({
+    id: i,
+    node: renderHtml(item)
+  }));
+}
 
-    .__slice {
-      background: rgba(0,0,255,.1);
-      outline: 1px solid blue;
-    }
-  </style>
-  <div class="column"></div>
-`;
-document.body.appendChild(fixture);
+function setup() {
+  document.body.innerHTML = '';
+  document.body.appendChild(renderHtml(page));
+  return [ document.querySelector('.container') ];
+}
 
-const columnEl = document.querySelector('.column');
-const content = Array(NUM_OF_ITEMS).fill().map((_, index) => {
-  let node = document.createElement('div');
-  node.innerHTML = `
-    <div class="item">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      Donec vitae pharetra tellus. Nam nec dapibus nulla. Nunc
-      id purus quis erat gravida dictum a vitae purus. Quisque
-      luctus placerat nibh in bibendum.
-    </div>
-  `.trim();
-
-  return {
-    id: index,
-    node: node.firstChild
-  }
-});
-
-const defaultArgs = t => ({
-  $target: columnEl,
-  content: content,
-  debug: true,
-  onBottomProximity: () => {
-    t.fail('proximity callback called');
-  }
-});
-
-test('basic render test', (t) => {
-  const output = render({}, defaultArgs(t));
-
+test('basic render', t => {
+  const content = makeContent(20);
+  const [ $container ] = setup();
+  const output = render({}, {
+    $container,
+    content
+  });
   t.ok(isVisible(content[0].node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
-
   t.end();
 });
 
-test('scroll to pivot test', (t) => {
+test('only a few nodes are rendered', t => {
+  const content = makeContent(20);
+  const [ $container ] = setup();
   const output = render({}, {
-    ...defaultArgs(t),
-    pivotItem: content[4]
+    $container,
+    content
   });
-
-  t.ok(isVisible(output.pivotItem.node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
-
+  t.ok(isVisible(content[0].node));
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length > 1);
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
+  t.ok([...$container.querySelectorAll('.item')].length < 5);
   t.end();
 });
 
-test('scroll to pivot with offset test', (t) => {
+test('the scollable region is the full height of the list', t => {
+  const content = makeContent(20);
+  const [ $container ] = setup();
   const output = render({}, {
-    ...defaultArgs(t),
-    pivotItem: content[4],
-    pivotOffset: 10
+    $container,
+    content,
+    defaultHeight: 100
   });
-
-  t.ok(isVisible(output.pivotItem.node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
-
+  const expectedTotalHeight = 100 * content.length;
+  t.equal($container.scrollHeight, expectedTotalHeight);
   t.end();
 });
 
-test('bottom proximity callback', (t) => {
-  t.plan(3);
 
-  const output = render({}, {
-    ...defaultArgs(t),
-    pivotItem: content[18],
-    onBottomProximity: () => {
-      t.pass('proximity callback called');
-    }
-  });
-
-  t.ok(isVisible(output.pivotItem.node));
-  t.ok([...columnEl.querySelectorAll('.item')].filter(isVisible).length > 1);
-
-  t.timeoutAfter(100);
-});
