@@ -32,7 +32,7 @@ We think this means:
 
 ### The slice
 
-The key problem to solve is that the browser can't keep every list in the DOM as it causes performance issues. However, ideally the user should not be aware that anything less than allthe available content is in the list.
+The key problem to solve is that the browser can't keep every list in the DOM as it causes performance issues. However, ideally the user should not be aware that anything less than all the available content is in the list.
 
 To keep the DOM tree small while keeping the list size perceptible, we will only render a **slice** of the whole list, and position so that it's on screen. A container around the slice will be sized to give the illusion that the full list is rendered.
 
@@ -48,18 +48,19 @@ If the heights change, we must accomodate that too.
 
 Before a list item is rendered in the list, we do not know its height. However, to render the correct slice when the list changes, we must know all the heights of all the elements.
 
-To accomodate for this, we will:
+The DOM-size contraint affects us here:
+
+> We cannot ever measure the whole list, or necessarily measure new items when they are added.
+
+To accomodate this, we will:
 
 - assume a height for each item (which may come from a cache)
 - insert and measure the item when it is calculated to appear in the slice
-- choose a new slice based on our new new height knowledge
-- schedule another list pass
+- if any heights were wrong, schedule another render pass
 
-However, this is made more difficult dues to another constraint:
+The next pass will choose a new slice based on our updated height knowledge, and we'll repeat the process again if something changed, leading to uncertainty about the heights.
 
-> We cannot ever render the whole list and we cannot render new items if they appear at the top of the list while we are scrolled down as there may be hundreds.
-
-To compensate, we'll adjust the user's scroll position if new, offscreen items arrive using an assumed height, and adjust when we know the real height.
+We'll adjust the user's scroll position if new, offscreen items arrive using an assumed height, and adjust when we know the real height.
 
 For example, we have a list of 10 items with real heights, and we assume a height of 10px for new items:
 
