@@ -7,6 +7,7 @@ export function insertAfter($new, $ref) {
 
 export function getOrCreateElements($container) {
     let $runway = $container.querySelector(`.${RUNWAY_CLASS}`);
+    let $slice = $container.querySelector(`.${SLICE_CLASS}`);
 
     if (!$runway) {
         $runway = document.createElement('div');
@@ -14,6 +15,12 @@ export function getOrCreateElements($container) {
         $container.appendChild($runway);
     }
 
-    return [$runway];
+    if (!$slice) {
+        $slice = document.createElement('div');
+        $slice.setAttribute('class', SLICE_CLASS);
+        $runway.appendChild($slice);
+    }
+
+    return [$runway, $slice];
 }
 

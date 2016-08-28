@@ -13,10 +13,19 @@ function renderHtml(html) {
 }
 
 function makeContent(size) {
-  return Array(size).fill().map((_, i) => ({
-    id: i,
-    node: renderHtml(item)
-  }));
+  return Array(size).fill().map((_, i) => {
+    const node = renderHtml(item);
+    node.setAttribute('data-index', i);
+    return {
+      id: i,
+      node
+    };
+  });
+}
+
+function checkVisibility(t, content, i) {
+  content[i].node.classList.add('visibility-check');
+  t.ok(isVisible(content[i].node), `The [${i}]th item is visible`);
 }
 
 function setup() {
@@ -63,4 +72,24 @@ test('the scollable region is the full height of the list', t => {
   t.end();
 });
 
+test.only('renders visible content from scroll position', t => {
+  const content = makeContent(20);
+  const [ $container ] = setup();
+  const scrollTop = 160;
+  const output = render({}, {
+    $container,
+    content,
+    scrollTop: scrollTop,
+    defaultHeight: 100
+  });
+  $container.scrollTop = scrollTop;
+  t.equal($container.scrollTop, scrollTop, 'Scroll position is correct');
+  checkVisibility(t, content, 1);
+  checkVisibility(t, content, 2);
+  checkVisibility(t, content, 3);
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length > 1);
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
+  t.ok([...$container.querySelectorAll('.item')].length < 5);
+  t.end();
+});
 
