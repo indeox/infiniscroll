@@ -93,7 +93,7 @@ test('it measures rendered nodes and returns as a height cache', t => {
   t.end();
 });
 
-test('uses supplied height cache to choose rendered items', t => {
+test('it uses supplied height cache to choose rendered items', t => {
   const content = makeContent(20, item);
   const [ $container ] = setup();
   const { heightCache } = render({
@@ -113,6 +113,12 @@ test('uses supplied height cache to choose rendered items', t => {
   t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
   t.ok([...$container.querySelectorAll('.item')].length > 5);
   t.ok([...$container.querySelectorAll('.item')].length < 10);
+  // Check that it measures afterwards
+  t.ok(
+    Object.keys(heightCache)
+      .every(k => heightCache[k] > 50)
+  );
+  t.ok(Object.keys(heightCache).length > 5);
   t.end();
 });
 
