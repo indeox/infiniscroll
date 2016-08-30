@@ -13,16 +13,20 @@ function setup() {
 window.addEventListener('load', () => {
   const [ $container ] = setup();
   const content = makeContent(100, item);
-  render({}, {
+  let previousOutput = render({}, {
     $container,
     content
   });
 
   $container.addEventListener('scroll', () => {
-    render({}, {
+    console.log('----------');
+    console.log({ previousOutput })
+    let newOutput = render(previousOutput, {
       $container,
       scrollTop: $container.scrollTop,
       content
     });
+    console.log({ newOutput })
+    previousOutput = newOutput;
   });
 });
