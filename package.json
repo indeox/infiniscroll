@@ -2,9 +2,9 @@
   "name": "infiniscroll",
   "version": "1.0.0",
   "scripts": {
-    "start": "budo src/render.js --live -- --debug -s render -t [ babelify ] -t [ stringify ]",
     "test": "browserify src/__tests__/*.js --debug -t [ babelify ] -t [ stringify ] | tape-run",
-    "test:watch": "watchify src/__tests__/*.js --debug -t [ babelify ] -t [ stringify ] -o test_bundle.js"
+    "test:watch": "watchify src/__tests__/*.js --verbose --debug -t [ babelify ] -t [ stringify ] -o test_bundle.js",
+    "sandbox": "watchify src/sandbox.js --verbose --debug -t [ babelify ] -t [ stringify ] -o sandbox_bundle.js"
   },
   "babel": {
     "presets": [

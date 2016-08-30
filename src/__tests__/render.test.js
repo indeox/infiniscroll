@@ -2,26 +2,10 @@ import test from 'tape';
 import render from '../render';
 import { getRect } from '../rect';
 import { isVisible } from "../rect";
+import { renderHtml, makeContent } from '../html';
 
 import page from './page.html';
 import item from './item.html';
-
-function renderHtml(html) {
-  const node = document.createElement('div');
-  node.innerHTML = html;
-  return node.firstChild;
-}
-
-function makeContent(size) {
-  return Array(size).fill().map((_, i) => {
-    const node = renderHtml(item);
-    node.setAttribute('data-index', i);
-    return {
-      id: i,
-      node
-    };
-  });
-}
 
 function checkVisibility(t, content, i) {
   content[i].node.classList.add('visibility-check');
@@ -35,7 +19,7 @@ function setup() {
 }
 
 test('basic render', t => {
-  const content = makeContent(20);
+  const content = makeContent(20, item);
   const [ $container ] = setup();
   const output = render({}, {
     $container,
@@ -46,7 +30,7 @@ test('basic render', t => {
 });
 
 test('only a few nodes are rendered', t => {
-  const content = makeContent(20);
+  const content = makeContent(20, item);
   const [ $container ] = setup();
   const output = render({}, {
     $container,
@@ -60,7 +44,7 @@ test('only a few nodes are rendered', t => {
 });
 
 test('the scollable region is the full height of the list', t => {
-  const content = makeContent(20);
+  const content = makeContent(20, item);
   const [ $container ] = setup();
   const output = render({}, {
     $container,
@@ -73,7 +57,7 @@ test('the scollable region is the full height of the list', t => {
 });
 
 test.only('renders visible content from scroll position', t => {
-  const content = makeContent(20);
+  const content = makeContent(20, item);
   const [ $container ] = setup();
   const scrollTop = 160;
   const output = render({}, {
