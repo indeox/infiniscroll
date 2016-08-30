@@ -9,7 +9,8 @@ module.exports = function render({
   $container,
   content = [],
   scrollTop = 0,
-  defaultHeight = 100
+  defaultHeight = 100,
+  buffer = 200
 } = {}) {
   const [ $runway, $slice ] = getOrCreateElements($container);
   const viewportHeight = getRect($container).height;
@@ -21,7 +22,7 @@ module.exports = function render({
   const totalHeight = sum(contentWithHeights.map(({ height }) => height));
 
   const [ sliceStart, sliceEnd ] = getSlice(
-    {},
+    { buffer },
     [ scrollTop, viewportHeight ],
     contentWithHeights
   );
