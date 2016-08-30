@@ -56,7 +56,7 @@ test('the scollable region is the full height of the list', t => {
   t.end();
 });
 
-test.only('renders visible content from scroll position', t => {
+test('renders visible content from scroll position', t => {
   const content = makeContent(20, item);
   const [ $container ] = setup();
   const scrollTop = 160;
@@ -74,6 +74,22 @@ test.only('renders visible content from scroll position', t => {
   t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length > 1);
   t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
   t.ok([...$container.querySelectorAll('.item')].length < 5);
+  t.end();
+});
+
+test('it measures rendered nodes and returns as a height cache', t => {
+  const content = makeContent(20, item);
+  const [ $container ] = setup();
+  const { heightCache } = render({}, {
+    $container,
+    content,
+    defaultHeight: 100
+  });
+  t.ok(
+    Object.keys(heightCache)
+      .every(k => heightCache[k] > 50)
+  );
+  t.ok(Object.keys(heightCache).length > 2);
   t.end();
 });
 

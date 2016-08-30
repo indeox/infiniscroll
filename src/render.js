@@ -4,6 +4,7 @@ import { getOrCreateElements } from "./domUtils";
 import { sum } from './sumUtils';
 
 module.exports = function render({
+  heightCache: previousHeightCache = {}
 } = {}, {
   $container,
   content = [],
@@ -14,7 +15,7 @@ module.exports = function render({
   const viewportHeight = getRect($container).height;
 
   const contentWithHeights = content.map(item => ({
-    height: defaultHeight,
+    height: previousHeightCache[item.id] || defaultHeight,
     item
   }));
   const totalHeight = sum(contentWithHeights.map(({ height }) => height));
@@ -33,7 +34,18 @@ module.exports = function render({
 
   $runway.style.height = `${totalHeight}px`;
   $slice.style.transform = `translateY(${runwayPadding}px)`;
-  content.slice(sliceStart, sliceEnd).forEach(({ node }) => {
-    $slice.appendChild(node);
+  const toMeasure = content.slice(sliceStart, sliceEnd).map(item => {
+    $slice.appendChild(item.node);
+    return item;
   });
+
+  const heightCache = toMeasure.reduce(
+    (acc, { id, node }) => ({
+      ...acc,
+      [id]: getRect(node).height
+    }),
+    {}
+  );
+
+  return { heightCache };
 }
