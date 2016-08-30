@@ -93,3 +93,26 @@ test('it measures rendered nodes and returns as a height cache', t => {
   t.end();
 });
 
+test('uses supplied height cache to choose rendered items', t => {
+  const content = makeContent(20, item);
+  const [ $container ] = setup();
+  const { heightCache } = render({
+    // Make a height cache where every node is 50px
+    heightCache: content.reduce(
+      (acc, { id }) => ({ ...acc, [id]: 50 }),
+      {}
+    )
+  }, {
+    $container,
+    content,
+    defaultHeight: 100
+  });
+  // We expect more nodes to have been rendered because we're tricking the
+  // render method into thinking the items are smaller than they are
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length > 1);
+  t.ok([...$container.querySelectorAll('.item')].filter(isVisible).length < content.length);
+  t.ok([...$container.querySelectorAll('.item')].length > 5);
+  t.ok([...$container.querySelectorAll('.item')].length < 10);
+  t.end();
+});
+
