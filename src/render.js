@@ -47,7 +47,7 @@ module.exports = function render({
       ...acc,
       [id]: getRect(node).height
     }),
-    {}
+    previousHeightCache
   );
 
   return { heightCache };
