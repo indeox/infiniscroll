@@ -32,14 +32,16 @@ module.exports = function render({
       .map(({ height }) => height)
   );
 
+  const slice = content.slice(sliceStart, sliceEnd);
+
   $runway.style.height = `${totalHeight}px`;
   $slice.style.transform = `translateY(${runwayPadding}px)`;
-  const toMeasure = content.slice(sliceStart, sliceEnd).map(item => {
+  $slice.innerHTML = '';
+  slice.forEach(item => {
     $slice.appendChild(item.node);
-    return item;
   });
 
-  const heightCache = toMeasure.reduce(
+  const heightCache = slice.reduce(
     (acc, { id, node }) => ({
       ...acc,
       [id]: getRect(node).height
